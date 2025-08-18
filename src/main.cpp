@@ -6,13 +6,13 @@ using namespace daemonium;
 int main()
 {
     Menu menu;
-    int choice = menu.run();
+    int choice = menu.Run();
     if (choice == 1)
     {
         Game game;
-        if (game.init())
+        if (game.Init())
         {
-            game.run();
+            game.Run();
         }
     }
     return 0;

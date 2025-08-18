@@ -10,13 +10,13 @@ namespace daemonium
         Game();
         ~Game();
 
-        bool init();
-        void run();
+        bool Init();
+        void Run();
 
     private:
-        SDL_Window *window = nullptr;
-        SDL_Renderer *renderer = nullptr;
-        bool running = false;
+        SDL_Window *window_ = nullptr;
+        SDL_Renderer *renderer_ = nullptr;
+        bool running_ = false;
         static constexpr char kGameTitle[] = "Daemonium";
     };
 

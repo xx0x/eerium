@@ -11,10 +11,10 @@ namespace daemonium
         Menu();
 
         // Show the menu and return the chosen option
-        int run();
+        int Run();
 
     private:
-        std::vector<std::string> options;
+        std::vector<std::string> options_;
     };
 
 }
