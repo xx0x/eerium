@@ -105,7 +105,7 @@ void MainMenu::Render(SDL_Renderer* renderer)
         int text_x = window_width / 2;
         int text_y = static_cast<int>(option_y + i * 60);
 
-        RenderText(renderer, options_[i], text_x, text_y, text_color);
+        RenderText(renderer, options_[i].label, text_x, text_y, text_color);
     }
 
     // Instructions
@@ -114,22 +114,12 @@ void MainMenu::Render(SDL_Renderer* renderer)
                window_width / 2, window_height - 80, instruction_color);
 }
 
-MainMenu::Action MainMenu::GetSelectedAction() const
+MainMenu::Item MainMenu::GetActivatedItem() const
 {
     if (!action_selected_)
     {
-        return Action::NONE;
+        return Item{};
     }
 
-    switch (selected_option_)
-    {
-        case 0:
-            return Action::START_GAME;
-        case 1:
-            return Action::HELP;
-        case 2:
-            return Action::QUIT;
-        default:
-            return Action::NONE;
-    }
+    return options_[selected_option_];
 }

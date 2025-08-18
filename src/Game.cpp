@@ -7,7 +7,6 @@ using namespace eerium;
 Game::Game()
     : context_(SDL_INIT_VIDEO), window_(kGameTitle, 800, 600, 0), renderer_(window_.Get(), nullptr)
 {
-
     current_state_ = State::MENU;
     std::print("Game initialized successfully\n");
 }
@@ -81,23 +80,20 @@ void Game::Update()
     {
         case State::MENU:
         {
-            MainMenu::Action action = menu_.GetSelectedAction();
-            switch (action)
+            MainMenu::Item action = menu_.GetActivatedItem();
+            if (!action.name.empty())
             {
-                case MainMenu::Action::START_GAME:
+                menu_.Reset();
+                if (action.name == "start")
+                {
                     current_state_ = State::PLAYING;
-                    // Reset menu for next time
-                    menu_.Reset();
-                    break;
-                case MainMenu::Action::HELP:
-                    // TODO: Implement help screen
-                    break;
-                case MainMenu::Action::QUIT:
+                    return;
+                }
+                else if (action.name == "quit")
+                {
                     current_state_ = State::QUIT;
-                    break;
-                case MainMenu::Action::NONE:
-                    // Stay in menu
-                    break;
+                    return;
+                }
             }
         }
         break;

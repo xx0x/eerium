@@ -14,25 +14,24 @@ namespace eerium
 class MainMenu
 {
 public:
-    enum class Action
+    struct Item
     {
-        NONE,
-        START_GAME,
-        HELP,
-        QUIT
+        std::string name = "";
+        std::string label = "";
     };
 
     MainMenu();
     void Reset();
     void HandleEvent(const SDL_Event& event);
     void Render(SDL_Renderer* renderer);
-    Action GetSelectedAction() const;
+    Item GetActivatedItem() const;
 
 private:
-    std::array<std::string, 3> options_ = {
-        "Start Game",
-        "Help",
-        "Quit"};
+    std::array<Item, 3> options_ = {
+        Item{.name = "start", .label = "Start Game"},
+        Item{.name = "help", .label = "Help"},
+        Item{.name = "quit", .label = "Quit"}};
+
     int selected_option_ = 0;
     bool action_selected_ = false;
     const sdl::Font* font_ = nullptr;
