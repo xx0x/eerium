@@ -1,4 +1,5 @@
 #include "Game.hpp"
+
 #include <print>
 
 using namespace eerium;
@@ -22,21 +23,24 @@ bool Game::Init()
 {
     if (!SDL_Init(SDL_INIT_VIDEO))
     {
-        std::print(stderr, "SDL could not initialize! SDL_Error: {}\n", SDL_GetError());
+        std::print(stderr, "SDL could not initialize! SDL_Error: {}\n",
+                   SDL_GetError());
         return false;
     }
 
     window_ = SDL_CreateWindow(kGameTitle, 800, 600, 0);
     if (!window_)
     {
-        std::print(stderr, "Window could not be created! SDL_Error: {}\n", SDL_GetError());
+        std::print(stderr, "Window could not be created! SDL_Error: {}\n",
+                   SDL_GetError());
         return false;
     }
 
     renderer_ = SDL_CreateRenderer(window_, nullptr);
     if (!renderer_)
     {
-        std::print(stderr, "Renderer could not be created! SDL_Error: {}\n", SDL_GetError());
+        std::print(stderr, "Renderer could not be created! SDL_Error: {}\n",
+                   SDL_GetError());
         return false;
     }
 
@@ -67,40 +71,40 @@ void Game::HandleEvents()
 
         switch (current_state_)
         {
-        case State::MENU:
-            if (e.type == SDL_EVENT_KEY_DOWN && e.key.key == SDLK_ESCAPE)
-            {
-                running_ = false;
-                return;
-            }
-            menu_.HandleEvent(e);
-            break;
-        case State::PLAYING:
-            if (e.type == SDL_EVENT_KEY_DOWN)
-            {
-                switch (e.key.key)
+            case State::MENU:
+                if (e.type == SDL_EVENT_KEY_DOWN && e.key.key == SDLK_ESCAPE)
                 {
-                case SDLK_ESCAPE:
-                    current_state_ = State::MENU;
-                    break;
-                case SDLK_UP:
-                    player_y_ -= 10;
-                    break;
-                case SDLK_DOWN:
-                    player_y_ += 10;
-                    break;
-                case SDLK_LEFT:
-                    player_x_ -= 10;
-                    break;
-                case SDLK_RIGHT:
-                    player_x_ += 10;
-                    break;
+                    running_ = false;
+                    return;
                 }
-            }
-            break;
-        case State::QUIT:
-            running_ = false;
-            break;
+                menu_.HandleEvent(e);
+                break;
+            case State::PLAYING:
+                if (e.type == SDL_EVENT_KEY_DOWN)
+                {
+                    switch (e.key.key)
+                    {
+                        case SDLK_ESCAPE:
+                            current_state_ = State::MENU;
+                            break;
+                        case SDLK_UP:
+                            player_y_ -= 10;
+                            break;
+                        case SDLK_DOWN:
+                            player_y_ += 10;
+                            break;
+                        case SDLK_LEFT:
+                            player_x_ -= 10;
+                            break;
+                        case SDLK_RIGHT:
+                            player_x_ += 10;
+                            break;
+                    }
+                }
+                break;
+            case State::QUIT:
+                running_ = false;
+                break;
         }
     }
 }
@@ -109,31 +113,31 @@ void Game::Update()
 {
     switch (current_state_)
     {
-    case State::MENU:
+        case State::MENU:
         {
             MainMenu::Action action = menu_.GetSelectedAction();
             switch (action)
             {
-            case MainMenu::Action::START_GAME:
-                current_state_ = State::PLAYING;
-                // Reset menu for next time
-                menu_ = MainMenu();
-                break;
-            case MainMenu::Action::QUIT:
-                current_state_ = State::QUIT;
-                break;
-            case MainMenu::Action::NONE:
-                // Stay in menu
-                break;
+                case MainMenu::Action::START_GAME:
+                    current_state_ = State::PLAYING;
+                    // Reset menu for next time
+                    menu_ = MainMenu();
+                    break;
+                case MainMenu::Action::QUIT:
+                    current_state_ = State::QUIT;
+                    break;
+                case MainMenu::Action::NONE:
+                    // Stay in menu
+                    break;
             }
         }
         break;
-    case State::PLAYING:
-        // Game logic would go here
-        break;
-    case State::QUIT:
-        running_ = false;
-        break;
+        case State::PLAYING:
+            // Game logic would go here
+            break;
+        case State::QUIT:
+            running_ = false;
+            break;
     }
 }
 
@@ -141,10 +145,10 @@ void Game::Render()
 {
     switch (current_state_)
     {
-    case State::MENU:
-        menu_.Render(renderer_);
-        break;
-    case State::PLAYING:
+        case State::MENU:
+            menu_.Render(renderer_);
+            break;
+        case State::PLAYING:
         {
             // Clear screen
             SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
@@ -156,8 +160,8 @@ void Game::Render()
             SDL_RenderFillRect(renderer_, &rect);
         }
         break;
-    case State::QUIT:
-        break;
+        case State::QUIT:
+            break;
     }
 
     SDL_RenderPresent(renderer_);
