@@ -21,13 +21,19 @@ bool MainMenu::Init()
     return true;
 }
 
-MainMenu::~MainMenu()
+void MainMenu::DeInit()
 {
     if (font_)
     {
         TTF_CloseFont(font_);
         font_ = nullptr;
     }
+}
+
+MainMenu::~MainMenu()
+{
+    // Ensure resources are released if DeInit wasn't called explicitly
+    DeInit();
 }
 
 void MainMenu::Reset()

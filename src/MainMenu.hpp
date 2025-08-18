@@ -23,6 +23,7 @@ public:
     MainMenu();
 
     bool Init(); // Add initialization method
+    void DeInit(); // Explicit shutdown to release SDL_ttf resources before global quit
     void Reset();
     void HandleEvent(const SDL_Event& event);
     void Render(SDL_Renderer* renderer);

@@ -8,6 +8,8 @@ Game::Game() = default;
 
 Game::~Game()
 {
+    // Release menu (font) resources before quitting TTF
+    menu_.DeInit();
     if (renderer_)
     {
         SDL_DestroyRenderer(renderer_);
@@ -24,15 +26,13 @@ bool Game::Init()
 {
     if (!SDL_Init(SDL_INIT_VIDEO))
     {
-        std::print(stderr, "SDL could not initialize! SDL_Error: {}\n",
-                   SDL_GetError());
+        std::print(stderr, "SDL could not initialize! SDL_Error: {}\n", SDL_GetError());
         return false;
     }
 
     if (!TTF_Init())
     {
-        std::print(stderr, "SDL_ttf could not initialize! SDL_Error: {}\n",
-                   SDL_GetError());
+        std::print(stderr, "SDL_ttf could not initialize! SDL_Error: {}\n", SDL_GetError());
         return false;
     }
 
