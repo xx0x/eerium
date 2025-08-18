@@ -136,8 +136,7 @@ void Game::Update()
                 case MainMenu::Action::START_GAME:
                     current_state_ = State::PLAYING;
                     // Reset menu for next time
-                    menu_ = MainMenu();
-                    menu_.Init();
+                    menu_.Reset();
                     break;
                 case MainMenu::Action::HELP:
                     // TODO: Implement help screen

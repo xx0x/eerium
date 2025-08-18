@@ -23,6 +23,7 @@ public:
     MainMenu();
 
     bool Init(); // Add initialization method
+    void Reset();
     void HandleEvent(const SDL_Event& event);
     void Render(SDL_Renderer* renderer);
     Action GetSelectedAction() const;

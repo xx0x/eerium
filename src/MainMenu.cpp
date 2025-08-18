@@ -30,6 +30,12 @@ MainMenu::~MainMenu()
     }
 }
 
+void MainMenu::Reset()
+{
+    selected_option_ = 0;
+    action_selected_ = false;
+}
+
 void MainMenu::HandleEvent(const SDL_Event& event)
 {
     if (event.type == SDL_EVENT_KEY_DOWN)
