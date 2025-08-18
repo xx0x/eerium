@@ -10,15 +10,15 @@ Game::Game()
     // Initialize resource manager and load default font
     sdl::ResourceManager::Instance().Initialize();
     sdl::ResourceManager::Instance().LoadFont("default",
-                                               "../resources/fonts/UncialAntiqua-Regular.ttf", 24);
+                                              "../resources/fonts/UncialAntiqua-Regular.ttf", 24);
 
-    running_ = true;
+    current_state_ = State::MENU;
     std::print("Game initialized successfully\n");
 }
 
 void Game::Run()
 {
-    while (running_)
+    while (current_state_ != State::QUIT)
     {
         HandleEvents();
         Update();
@@ -36,7 +36,7 @@ void Game::HandleEvents()
     {
         if (e.type == SDL_EVENT_QUIT)
         {
-            running_ = false;
+            current_state_ = State::QUIT;
             return;
         }
 
@@ -45,7 +45,7 @@ void Game::HandleEvents()
             case State::MENU:
                 if (e.type == SDL_EVENT_KEY_DOWN && e.key.key == SDLK_ESCAPE)
                 {
-                    running_ = false;
+                    current_state_ = State::QUIT;
                     return;
                 }
                 menu_.HandleEvent(e);
@@ -74,7 +74,6 @@ void Game::HandleEvents()
                 }
                 break;
             case State::QUIT:
-                running_ = false;
                 break;
         }
     }
@@ -110,7 +109,6 @@ void Game::Update()
             // Game logic would go here
             break;
         case State::QUIT:
-            running_ = false;
             break;
     }
 }

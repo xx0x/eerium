@@ -37,7 +37,6 @@ private:
     sdl::Window window_;
     sdl::Renderer renderer_;
 
-    bool running_ = false;
     State current_state_ = State::MENU;
 
     // Game objects
