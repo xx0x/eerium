@@ -10,7 +10,7 @@ find_package(SDL3 REQUIRED)
 add_executable(eerium
     src/main.cpp
     src/Game.cpp
-    src/Menu.cpp
+    src/MainMenu.cpp
 )
 
 target_include_directories(eerium PRIVATE ${SDL3_INCLUDE_DIRS})
