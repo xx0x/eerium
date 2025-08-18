@@ -4,8 +4,8 @@ project(daemonium LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Find SDL2 (assumes it's installed on the system)
-find_package(SDL2 REQUIRED)
+# Find SDL3 (assumes it's installed on the system)
+find_package(SDL3 REQUIRED)
 
 add_executable(daemonium
     src/main.cpp
@@ -13,5 +13,5 @@ add_executable(daemonium
     src/Menu.cpp
 )
 
-target_include_directories(daemonium PRIVATE ${SDL2_INCLUDE_DIRS})
-target_link_libraries(daemonium PRIVATE ${SDL2_LIBRARIES})
+target_include_directories(daemonium PRIVATE ${SDL3_INCLUDE_DIRS})
+target_link_libraries(daemonium PRIVATE ${SDL3_LIBRARIES})
