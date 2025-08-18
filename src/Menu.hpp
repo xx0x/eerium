@@ -2,13 +2,19 @@
 #include <string>
 #include <vector>
 
-class Menu {
-public:
-    Menu();
+namespace daemonium
+{
 
-    // Show the menu and return the chosen option
-    int run();
+    class Menu
+    {
+    public:
+        Menu();
 
-private:
-    std::vector<std::string> options;
-};
+        // Show the menu and return the chosen option
+        int run();
+
+    private:
+        std::vector<std::string> options;
+    };
+
+}

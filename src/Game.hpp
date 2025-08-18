@@ -2,16 +2,22 @@
 #include <SDL3/SDL.h>
 #include <memory>
 
-class Game {
-public:
-    Game();
-    ~Game();
+namespace daemonium
+{
+    class Game
+    {
+    public:
+        Game();
+        ~Game();
 
-    bool init();
-    void run();
+        bool init();
+        void run();
 
-private:
-    SDL_Window* window = nullptr;
-    SDL_Renderer* renderer = nullptr;
-    bool running = false;
-};
+    private:
+        SDL_Window *window = nullptr;
+        SDL_Renderer *renderer = nullptr;
+        bool running = false;
+        static constexpr char kGameTitle[] = "Daemonium";
+    };
+
+}

@@ -1,5 +1,7 @@
 #include "Game.hpp"
-#include <iostream>
+#include <print>
+
+using namespace daemonium;
 
 Game::Game() = default;
 
@@ -20,21 +22,21 @@ bool Game::init()
 {
     if (!SDL_Init(SDL_INIT_VIDEO))
     {
-        std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << "\n";
+        std::print(stderr, "SDL could not initialize! SDL_Error: {}\n", SDL_GetError());
         return false;
     }
 
-    window = SDL_CreateWindow("Daemonium", 800, 600, 0);
+    window = SDL_CreateWindow(kGameTitle, 800, 600, 0);
     if (!window)
     {
-        std::cerr << "Window could not be created! SDL_Error: " << SDL_GetError() << "\n";
+        std::print(stderr, "Window could not be created! SDL_Error: {}\n", SDL_GetError());
         return false;
     }
 
     renderer = SDL_CreateRenderer(window, nullptr);
     if (!renderer)
     {
-        std::cerr << "Renderer could not be created! SDL_Error: " << SDL_GetError() << "\n";
+        std::print(stderr, "Renderer could not be created! SDL_Error: {}\n", SDL_GetError());
         return false;
     }
 
