@@ -5,6 +5,10 @@
 #include <memory>
 
 #include "MainMenu.hpp"
+#include "sdl/Context.hpp"
+#include "sdl/Renderer.hpp"
+#include "sdl/ResourceManager.hpp"
+#include "sdl/Window.hpp"
 
 namespace eerium
 {
@@ -20,9 +24,7 @@ public:
     };
 
     Game();
-    ~Game();
 
-    bool Init();
     void Run();
 
 private:
@@ -30,8 +32,11 @@ private:
     void Update();
     void Render();
 
-    SDL_Window *window_ = nullptr;
-    SDL_Renderer *renderer_ = nullptr;
+    // RAII SDL resources - order matters for destruction
+    sdl::Context context_;
+    sdl::Window window_;
+    sdl::Renderer renderer_;
+
     bool running_ = false;
     State current_state_ = State::MENU;
 

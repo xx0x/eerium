@@ -20,10 +20,6 @@ public:
         QUIT
     };
 
-    MainMenu();
-
-    bool Init(); // Add initialization method
-    void DeInit(); // Explicit shutdown to release SDL_ttf resources before global quit
     void Reset();
     void HandleEvent(const SDL_Event& event);
     void Render(SDL_Renderer* renderer);
@@ -36,11 +32,8 @@ private:
         "Quit"};
     int selected_option_ = 0;
     bool action_selected_ = false;
-    TTF_Font* font_ = nullptr;
-    
+
     void RenderText(SDL_Renderer* renderer, const std::string& text, int x, int y, SDL_Color color);
-public:
-    ~MainMenu();
 };
 
 }  // namespace eerium

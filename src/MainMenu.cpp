@@ -2,39 +2,9 @@
 
 #include <print>
 
+#include "sdl/ResourceManager.hpp"
+
 using namespace eerium;
-
-MainMenu::MainMenu()
-{
-    // Font will be loaded in Init()
-}
-
-bool MainMenu::Init()
-{
-    // Load font
-    font_ = TTF_OpenFont("../resources/fonts/UncialAntiqua-Regular.ttf", 24);
-    if (!font_)
-    {
-        std::print(stderr, "Failed to load font! SDL_Error: {}\n", SDL_GetError());
-        return false;
-    }
-    return true;
-}
-
-void MainMenu::DeInit()
-{
-    if (font_)
-    {
-        TTF_CloseFont(font_);
-        font_ = nullptr;
-    }
-}
-
-MainMenu::~MainMenu()
-{
-    // Ensure resources are released if DeInit wasn't called explicitly
-    DeInit();
-}
 
 void MainMenu::Reset()
 {
@@ -64,10 +34,11 @@ void MainMenu::HandleEvent(const SDL_Event& event)
 
 void MainMenu::RenderText(SDL_Renderer* renderer, const std::string& text, int x, int y, SDL_Color color)
 {
-    if (!font_)
+    const auto& font = sdl::ResourceManager::Instance().GetDefaultFont();
+    if (!font.IsValid())
         return;
 
-    SDL_Surface* text_surface = TTF_RenderText_Solid(font_, text.c_str(), text.length(), color);
+    SDL_Surface* text_surface = TTF_RenderText_Solid(font.Get(), text.c_str(), text.length(), color);
     if (!text_surface)
     {
         std::print(stderr, "Unable to render text surface! SDL_Error: {}\n", SDL_GetError());

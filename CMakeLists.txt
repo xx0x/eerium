@@ -15,6 +15,11 @@ add_executable(eerium
     src/main.cpp
     src/Game.cpp
     src/MainMenu.cpp
+    src/sdl/Font.cpp
+    src/sdl/ResourceManager.cpp
+    src/sdl/Window.cpp
+    src/sdl/Renderer.cpp
+    src/sdl/Context.cpp
 )
 
 target_include_directories(eerium PRIVATE ${SDL3_INCLUDE_DIRS} ${SDL3_TTF_INCLUDE_DIRS})
