@@ -1,0 +1,67 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "clean",
+            "type": "process",
+            "command": "make",
+            "options": {
+                "cwd": "${workspaceRoot}/build"
+            },
+            "presentation": {
+                "showReuseMessage": false,
+                "group": "daemonium"
+            },
+            "args": [
+                "clean"
+            ]
+        },
+        {
+            "label": "configure",
+            "type": "process",
+            "command": "./configure.sh",
+            "options": {
+                "cwd": "${workspaceRoot}"
+            },
+            "presentation": {
+                "clear": true,
+                "showReuseMessage": false,
+                "group": "daemonium"
+            }
+        },
+        {
+            "label": "build",
+            "type": "process",
+            "command": "make",
+            "options": {
+                "cwd": "${workspaceRoot}/build"
+            },
+            "presentation": {
+                "clear": true,
+                "showReuseMessage": false,
+                "group": "daemonium"
+            }
+        },
+        {
+            "label": "run",
+            "type": "process",
+            "command": "./daemonium",
+            "options": {
+                "cwd": "${workspaceRoot}/build"
+            },
+            "presentation": {
+                "clear": true,
+                "showReuseMessage": false,
+                "group": "daemonium"
+            }
+        },
+        {
+            "label": "build_and_run",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "build",
+                "run"
+            ]
+        },
+    ]
+}
