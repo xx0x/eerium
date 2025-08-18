@@ -1,4 +1,4 @@
-# daemonium
+# eerium
 C++ game project, something to improve programming skills, not a full game in any means
 
 ## Requirements

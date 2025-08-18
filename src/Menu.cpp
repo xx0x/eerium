@@ -2,7 +2,7 @@
 #include <print>
 #include <iostream>
 
-using namespace daemonium;
+using namespace eerium;
 
 Menu::Menu()
 {
@@ -11,7 +11,7 @@ Menu::Menu()
 
 int Menu::Run()
 {
-    std::print("==== Daemonium ====\n");
+    std::print("==== Eerium ====\n");
     for (size_t i = 0; i < options_.size(); ++i)
     {
         std::print("{}: {}\n", i + 1, options_[i]);

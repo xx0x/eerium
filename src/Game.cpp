@@ -1,7 +1,7 @@
 #include "Game.hpp"
 #include <print>
 
-using namespace daemonium;
+using namespace eerium;
 
 Game::Game() = default;
 

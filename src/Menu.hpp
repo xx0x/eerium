@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 
-namespace daemonium
+namespace eerium
 {
 
     class Menu

@@ -10,7 +10,7 @@
             },
             "presentation": {
                 "showReuseMessage": false,
-                "group": "daemonium"
+                "group": "eerium"
             },
             "args": [
                 "clean"
@@ -26,7 +26,7 @@
             "presentation": {
                 "clear": true,
                 "showReuseMessage": false,
-                "group": "daemonium"
+                "group": "eerium"
             }
         },
         {
@@ -39,20 +39,20 @@
             "presentation": {
                 "clear": true,
                 "showReuseMessage": false,
-                "group": "daemonium"
+                "group": "eerium"
             }
         },
         {
             "label": "run",
             "type": "process",
-            "command": "./daemonium",
+            "command": "./eerium",
             "options": {
                 "cwd": "${workspaceRoot}/build"
             },
             "presentation": {
                 "clear": true,
                 "showReuseMessage": false,
-                "group": "daemonium"
+                "group": "eerium"
             }
         },
         {

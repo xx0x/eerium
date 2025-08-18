@@ -1,7 +1,7 @@
 #include "Menu.hpp"
 #include "Game.hpp"
 
-using namespace daemonium;
+using namespace eerium;
 
 int main()
 {
