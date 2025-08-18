@@ -16,6 +16,7 @@ Game::~Game()
     {
         SDL_DestroyWindow(window_);
     }
+    TTF_Quit();
     SDL_Quit();
 }
 
@@ -24,6 +25,13 @@ bool Game::Init()
     if (!SDL_Init(SDL_INIT_VIDEO))
     {
         std::print(stderr, "SDL could not initialize! SDL_Error: {}\n",
+                   SDL_GetError());
+        return false;
+    }
+
+    if (!TTF_Init())
+    {
+        std::print(stderr, "SDL_ttf could not initialize! SDL_Error: {}\n",
                    SDL_GetError());
         return false;
     }
@@ -41,6 +49,13 @@ bool Game::Init()
     {
         std::print(stderr, "Renderer could not be created! SDL_Error: {}\n",
                    SDL_GetError());
+        return false;
+    }
+    
+    // Initialize menu after SDL_ttf is ready
+    if (!menu_.Init())
+    {
+        std::print(stderr, "Menu could not initialize!\n");
         return false;
     }
 
@@ -122,6 +137,10 @@ void Game::Update()
                     current_state_ = State::PLAYING;
                     // Reset menu for next time
                     menu_ = MainMenu();
+                    menu_.Init();
+                    break;
+                case MainMenu::Action::HELP:
+                    // TODO: Implement help screen
                     break;
                 case MainMenu::Action::QUIT:
                     current_state_ = State::QUIT;

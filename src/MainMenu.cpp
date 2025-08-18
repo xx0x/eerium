@@ -4,7 +4,31 @@
 
 using namespace eerium;
 
-MainMenu::MainMenu() { options_ = {"Start Game", "Quit"}; }
+MainMenu::MainMenu()
+{
+    // Font will be loaded in Init()
+}
+
+bool MainMenu::Init()
+{
+    // Load font
+    font_ = TTF_OpenFont("../resources/fonts/UncialAntiqua-Regular.ttf", 24);
+    if (!font_)
+    {
+        std::print(stderr, "Failed to load font! SDL_Error: {}\n", SDL_GetError());
+        return false;
+    }
+    return true;
+}
+
+MainMenu::~MainMenu()
+{
+    if (font_)
+    {
+        TTF_CloseFont(font_);
+        font_ = nullptr;
+    }
+}
 
 void MainMenu::HandleEvent(const SDL_Event& event)
 {
@@ -26,6 +50,37 @@ void MainMenu::HandleEvent(const SDL_Event& event)
     }
 }
 
+void MainMenu::RenderText(SDL_Renderer* renderer, const std::string& text, int x, int y, SDL_Color color)
+{
+    if (!font_)
+        return;
+
+    SDL_Surface* text_surface = TTF_RenderText_Solid(font_, text.c_str(), text.length(), color);
+    if (!text_surface)
+    {
+        std::print(stderr, "Unable to render text surface! SDL_Error: {}\n", SDL_GetError());
+        return;
+    }
+
+    SDL_Texture* text_texture = SDL_CreateTextureFromSurface(renderer, text_surface);
+    if (!text_texture)
+    {
+        std::print(stderr, "Unable to create texture from rendered text! SDL_Error: {}\n", SDL_GetError());
+        SDL_DestroySurface(text_surface);
+        return;
+    }
+
+    int text_width = text_surface->w;
+    int text_height = text_surface->h;
+    SDL_DestroySurface(text_surface);
+
+    // Center the text at the given x position
+    SDL_FRect render_quad = {static_cast<float>(x - text_width / 2), static_cast<float>(y), static_cast<float>(text_width), static_cast<float>(text_height)};
+    SDL_RenderTexture(renderer, text_texture, nullptr, &render_quad);
+
+    SDL_DestroyTexture(text_texture);
+}
+
 void MainMenu::Render(SDL_Renderer* renderer)
 {
     // Clear screen with dark blue background
@@ -37,43 +92,37 @@ void MainMenu::Render(SDL_Renderer* renderer)
     int window_width, window_height;
     SDL_GetWindowSize(window, &window_width, &window_height);
 
-    // Title area
-    SDL_FRect title_rect = {static_cast<float>(window_width) / 2.0f - 100, 100,
-                            200, 60};
-    SDL_SetRenderDrawColor(renderer, 100, 150, 200, 255);
-    SDL_RenderFillRect(renderer, &title_rect);
+    // Render title
+    SDL_Color title_color = {200, 200, 255, 255};  // Light blue
+    RenderText(renderer, "EERIUM", window_width / 2, 100, title_color);
 
     // MainMenu options
     float option_y = 200;
     for (size_t i = 0; i < options_.size(); ++i)
     {
-        SDL_FRect option_rect = {static_cast<float>(window_width) / 2.0f - 80,
-                                 option_y + static_cast<float>(i) * 60, 160,
-                                 40};
+        SDL_Color text_color;
 
         // Highlight selected option
         if (i == selected_option_)
         {
-            SDL_SetRenderDrawColor(renderer, 200, 200, 100, 255);
+            text_color = {255, 255, 100, 255};  // Yellow for selected
         }
         else
         {
-            SDL_SetRenderDrawColor(renderer, 80, 80, 80, 255);
+            text_color = {200, 200, 200, 255};  // Light gray for unselected
         }
 
-        SDL_RenderFillRect(renderer, &option_rect);
+        // Center the text horizontally
+        int text_x = window_width / 2;
+        int text_y = static_cast<int>(option_y + i * 60);
 
-        // Draw border
-        SDL_SetRenderDrawColor(renderer, 200, 200, 200, 255);
-        SDL_RenderRect(renderer, &option_rect);
+        RenderText(renderer, options_[i], text_x, text_y, text_color);
     }
 
     // Instructions
-    SDL_FRect instruction_rect = {static_cast<float>(window_width) / 2.0f - 120,
-                                  static_cast<float>(window_height) - 80, 240,
-                                  30};
-    SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
-    SDL_RenderFillRect(renderer, &instruction_rect);
+    SDL_Color instruction_color = {150, 150, 150, 255};  // Gray
+    RenderText(renderer, "Use arrow keys to navigate, Enter to select",
+               window_width / 2, window_height - 80, instruction_color);
 }
 
 MainMenu::Action MainMenu::GetSelectedAction() const
@@ -88,6 +137,8 @@ MainMenu::Action MainMenu::GetSelectedAction() const
         case 0:
             return Action::START_GAME;
         case 1:
+            return Action::HELP;
+        case 2:
             return Action::QUIT;
         default:
             return Action::NONE;
