@@ -82,9 +82,21 @@ bool ResourceManager::HasFont(const std::string& name) const
     return fonts_.find(name) != fonts_.end();
 }
 
-const Font& ResourceManager::GetDefaultFont() const
+const Font* ResourceManager::GetDefaultFont() const
 {
-    return GetFont(kDefaultFontName);
+    auto it = fonts_.find(kDefaultFontName);
+    if (it == fonts_.end())
+    {
+        return nullptr;
+    }
+    
+    const Font* font = it->second.get();
+    if (!font->IsValid())
+    {
+        return nullptr;
+    }
+    
+    return font;
 }
 
 }  // namespace eerium::sdl

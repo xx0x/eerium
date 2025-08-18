@@ -7,10 +7,6 @@ using namespace eerium;
 Game::Game()
     : context_(SDL_INIT_VIDEO), window_(kGameTitle, 800, 600, 0), renderer_(window_.Get(), nullptr)
 {
-    // Initialize resource manager and load default font
-    sdl::ResourceManager::Instance().Initialize();
-    sdl::ResourceManager::Instance().LoadFont("default",
-                                              "../resources/fonts/UncialAntiqua-Regular.ttf", 24);
 
     current_state_ = State::MENU;
     std::print("Game initialized successfully\n");

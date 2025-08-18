@@ -6,6 +6,11 @@
 
 using namespace eerium;
 
+MainMenu::MainMenu()
+{
+    font_ = sdl::ResourceManager::Instance().GetDefaultFont();
+}
+
 void MainMenu::Reset()
 {
     selected_option_ = 0;
@@ -34,11 +39,12 @@ void MainMenu::HandleEvent(const SDL_Event& event)
 
 void MainMenu::RenderText(SDL_Renderer* renderer, const std::string& text, int x, int y, SDL_Color color)
 {
-    const auto& font = sdl::ResourceManager::Instance().GetDefaultFont();
-    if (!font.IsValid())
+    if (!font_)
+    {
         return;
+    }
 
-    SDL_Surface* text_surface = TTF_RenderText_Solid(font.Get(), text.c_str(), text.length(), color);
+    SDL_Surface* text_surface = TTF_RenderText_Solid(font_->Get(), text.c_str(), text.length(), color);
     if (!text_surface)
     {
         std::print(stderr, "Unable to render text surface! SDL_Error: {}\n", SDL_GetError());

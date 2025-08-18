@@ -76,10 +76,9 @@ public:
 
     /**
      * @brief Get default UI font (convenience method)
-     * @return Reference to the default UI font
-     * @throws std::out_of_range if default font not loaded
+     * @return Pointer to the default UI font, or nullptr if not loaded or invalid
      */
-    const Font& GetDefaultFont() const;
+    const Font* GetDefaultFont() const;
 
     // Disable copy/move for singleton
     ResourceManager(const ResourceManager&) = delete;

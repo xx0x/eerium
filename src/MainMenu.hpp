@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+#include "sdl/Font.hpp"
+
 namespace eerium
 {
 
@@ -20,6 +22,7 @@ public:
         QUIT
     };
 
+    MainMenu();
     void Reset();
     void HandleEvent(const SDL_Event& event);
     void Render(SDL_Renderer* renderer);
@@ -32,6 +35,7 @@ private:
         "Quit"};
     int selected_option_ = 0;
     bool action_selected_ = false;
+    const sdl::Font* font_ = nullptr;
 
     void RenderText(SDL_Renderer* renderer, const std::string& text, int x, int y, SDL_Color color);
 };
