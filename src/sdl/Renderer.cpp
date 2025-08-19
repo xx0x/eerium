@@ -75,7 +75,7 @@ void Renderer::RenderText(const std::string& text,
         return;
     }
 
-    SDL_Surface* text_surface = TTF_RenderText_Solid(font.Get(), text.c_str(), text.length(), color);
+    SDL_Surface* text_surface = TTF_RenderText_Blended(font.Get(), text.c_str(), text.length(), color);
     if (!text_surface)
     {
         std::print(stderr, "Unable to render text surface! SDL_Error: {}\n", SDL_GetError());
