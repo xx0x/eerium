@@ -64,6 +64,17 @@ void Game::HandleEvents()
                             break;
                     }
                 }
+                else if (e.type == SDL_EVENT_MOUSE_BUTTON_DOWN)
+                {
+                    if (e.button.button == SDL_BUTTON_LEFT)
+                    {
+                        float mouse_x = e.button.x;
+                        float mouse_y = e.button.y;
+                        // Handle left mouse button click
+                        std::println("Mouse clicked at ({}, {})", mouse_x, mouse_y);
+                        player1_.WalkTo({mouse_x, mouse_y});
+                    }
+                }
                 break;
             case State::QUIT:
                 break;
@@ -73,7 +84,8 @@ void Game::HandleEvents()
 
 void Game::PlayerMove(float delta_x, float delta_y)
 {
-    player1_.SetPosition(player1_.GetPosition().x + delta_x, player1_.GetPosition().y + delta_y);
+    player1_.WalkTo({player1_.GetPosition().x + delta_x,
+                     player1_.GetPosition().y + delta_y});
 }
 
 void Game::Update()
@@ -102,6 +114,7 @@ void Game::Update()
         break;
         case State::PLAYING:
             // Game logic would go here
+            player1_.Update();
             break;
         case State::QUIT:
             break;
@@ -112,6 +125,7 @@ void Game::StartGame()
 {
     // Initialize game objects
     player1_.SetPosition(400, 300);
+    player1_.WalkTo({400, 300});
     std::println("Player initialized at position {}", player1_.GetPosition());
 
     // Randomize tree positions

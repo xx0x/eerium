@@ -22,6 +22,9 @@ public:
         float height = 0.0f;
     };
 
+    virtual void Render(sdl::Renderer& renderer) = 0;
+    virtual void Update() {};
+
     void SetPosition(Position position)
     {
         position_ = position;
@@ -29,8 +32,7 @@ public:
 
     void SetPosition(float x, float y)
     {
-        position_.x = x;
-        position_.y = y;
+        SetPosition({x, y});
     }
 
     Position GetPosition() const
@@ -42,8 +44,6 @@ public:
     {
         return size_;
     }
-
-    virtual void Render(sdl::Renderer& renderer) = 0;
 
     void RenderBoundingBox(sdl::Renderer& renderer)
     {
@@ -66,8 +66,7 @@ protected:
 
     void SetSize(float width, float height)
     {
-        size_.width = width;
-        size_.height = height;
+        SetSize({width, height});
     }
 };
 }  // namespace eerium::objects
