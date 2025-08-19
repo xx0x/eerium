@@ -9,10 +9,11 @@ using namespace eerium;
 
 MainMenu::MainMenu()
 {
-    font_ = sdl::ResourceManager::Instance().GetDefaultFont();
-    if (!font_)
+    menu_font_ = sdl::ResourceManager::Instance().GetDefaultFont();
+    title_font_ = sdl::ResourceManager::Instance().GetFont("title");
+    if (!menu_font_ || !title_font_ || !menu_font_->IsValid() || !title_font_->IsValid())
     {
-        std::println(stderr, "Failed to get default font");
+        std::println(stderr, "Failed to get the fonts");
     }
 }
 
@@ -47,15 +48,16 @@ void MainMenu::Render(sdl::Renderer& renderer)
     renderer.Clear();
 
     // Check if font is available
-    if (!font_ || !font_->IsValid())
+    if (!menu_font_ || !title_font_)
     {
+        std::println(stderr, "Fonts not loaded");
         return;
     }
 
     auto window = renderer.GetWindowSize();
 
     // Render title
-    renderer.RenderText("EERIUM", window.width / 2, 100, kColorRedText, *font_, sdl::Renderer::TextAlign::CENTER);
+    renderer.RenderText("EERIUM", window.width / 2, 100, kColorRedText, *title_font_, sdl::Renderer::TextAlign::CENTER);
 
     // MainMenu options
     float option_y = 200;
@@ -77,12 +79,12 @@ void MainMenu::Render(sdl::Renderer& renderer)
         float text_x = window.width / 2;
         float text_y = option_y + i * 60;
 
-        renderer.RenderText(options_[i].label, text_x, text_y, text_color, *font_, sdl::Renderer::TextAlign::CENTER);
+        renderer.RenderText(options_[i].label, text_x, text_y, text_color, *menu_font_, sdl::Renderer::TextAlign::CENTER);
     }
 
     // Instructions
     renderer.RenderText("Use arrow keys to navigate, Enter to select",
-                        window.width / 2, window.height - 80, kColorNoteText, *font_, sdl::Renderer::TextAlign::CENTER);
+                        window.width / 2, window.height - 80, kColorNoteText, *menu_font_, sdl::Renderer::TextAlign::CENTER);
 }
 
 MainMenu::Item MainMenu::GetActivatedItem() const

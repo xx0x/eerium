@@ -19,7 +19,12 @@ Context::Context(Uint32 flags)
     // Initialize resource manager and load default font
     ResourceManager::Instance().Initialize();
     ResourceManager::Instance().LoadFont("default",
-                                         "../resources/fonts/UncialAntiqua-Regular.ttf", 24);
+                                         "../resources/fonts/UncialAntiqua-Regular.ttf",
+                                         24);
+
+    ResourceManager::Instance().LoadFont("title",
+                                         "../resources/fonts/UncialAntiqua-Regular.ttf",
+                                         48);
 
     initialized_ = true;
     std::print("SDL initialized successfully\n");

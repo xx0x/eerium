@@ -3,9 +3,9 @@
 #include <SDL3_ttf/SDL_ttf.h>
 
 #include <array>
+#include <optional>
 #include <string>
 #include <vector>
-#include <optional>
 
 #include "sdl/Font.hpp"
 #include "sdl/Renderer.hpp"
@@ -36,7 +36,8 @@ private:
 
     int selected_option_ = 0;
     bool action_selected_ = false;
-    std::optional<sdl::Font> font_;
+    std::optional<sdl::Font> menu_font_;
+    std::optional<sdl::Font> title_font_;
 };
 
 }  // namespace eerium
