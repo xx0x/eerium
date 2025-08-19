@@ -1,18 +1,21 @@
-#include "Game.hpp"
-#include <print>
 #include <exception>
+#include <print>
+
+#include "Game.hpp"
 
 using namespace eerium;
 
 int main()
 {
-    try {
+    try
+    {
         Game game;
         game.Run();
         return 0;
     }
-    catch (const std::exception& e) {
-        std::print(stderr, "Error: {}\n", e.what());
+    catch (const std::exception& e)
+    {
+        std::println(stderr, "Error: {}", e.what());
         return 1;
     }
 }

@@ -1,5 +1,8 @@
 #pragma once
 
+#include <format>
+#include <string>
+
 #include "sdl/Renderer.hpp"
 
 namespace eerium::objects
@@ -68,3 +71,32 @@ protected:
     }
 };
 }  // namespace eerium::objects
+
+// Formatter specializations for std::println support
+template <>
+struct std::formatter<eerium::objects::BaseObject::Position>
+{
+    constexpr auto parse(std::format_parse_context& ctx)
+    {
+        return ctx.begin();
+    }
+
+    auto format(const eerium::objects::BaseObject::Position& pos, std::format_context& ctx) const
+    {
+        return std::format_to(ctx.out(), "[x: {}, y: {}]", pos.x, pos.y);
+    }
+};
+
+template <>
+struct std::formatter<eerium::objects::BaseObject::Size>
+{
+    constexpr auto parse(std::format_parse_context& ctx)
+    {
+        return ctx.begin();
+    }
+
+    auto format(const eerium::objects::BaseObject::Size& size, std::format_context& ctx) const
+    {
+        return std::format_to(ctx.out(), "[width: {}, height: {}]", size.width, size.height);
+    }
+};

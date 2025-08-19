@@ -78,14 +78,14 @@ void Renderer::RenderText(const std::string& text,
     SDL_Surface* text_surface = TTF_RenderText_Blended(font.Get(), text.c_str(), text.length(), color);
     if (!text_surface)
     {
-        std::print(stderr, "Unable to render text surface! SDL_Error: {}\n", SDL_GetError());
+        std::println(stderr, "Unable to render text surface! SDL_Error: {}", SDL_GetError());
         return;
     }
 
     SDL_Texture* text_texture = SDL_CreateTextureFromSurface(renderer_, text_surface);
     if (!text_texture)
     {
-        std::print(stderr, "Unable to create texture from rendered text! SDL_Error: {}\n", SDL_GetError());
+        std::println(stderr, "Unable to create texture from rendered text! SDL_Error: {}", SDL_GetError());
         SDL_DestroySurface(text_surface);
         return;
     }

@@ -1,6 +1,7 @@
 #include "Game.hpp"
 
 #include <print>
+#include <random>
 
 using namespace eerium;
 
@@ -8,7 +9,7 @@ Game::Game()
     : context_(SDL_INIT_VIDEO), window_(kGameTitle, 800, 600, 0), renderer_(window_.Get(), nullptr)
 {
     current_state_ = State::MENU;
-    std::print("Game initialized successfully\n");
+    std::println("Game initialized successfully");
 }
 
 void Game::Run()
@@ -111,12 +112,21 @@ void Game::StartGame()
 {
     // Initialize game objects
     player1_.SetPosition(400, 300);
+    std::println("Player initialized at position {}", player1_.GetPosition());
 
     // Randomize tree positions
+    std::random_device rd;
+    std::ranlux24 gen(rd());  // RANLUX random number generator (slow but high quality)
+
+    // Uniform distributions for x and y coordinates
+    std::uniform_int_distribution<int> distX(20, renderer_.GetWindowSize().width - 20);
+    std::uniform_int_distribution<int> distY(20, renderer_.GetWindowSize().height - 20);
+
     for (auto& tree : trees_)
     {
-        tree.SetPosition(rand() % 800, rand() % 600);
+        tree.SetPosition(distX(gen), distY(gen));
     }
+    std::println("Trees randomized");
 }
 
 void Game::Render()

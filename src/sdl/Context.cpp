@@ -27,7 +27,7 @@ Context::Context(Uint32 flags)
                                          48);
 
     initialized_ = true;
-    std::print("SDL initialized successfully\n");
+    std::print("SDL initialized successfully");
 }
 
 Context::~Context()
@@ -35,7 +35,7 @@ Context::~Context()
     if (initialized_)
     {
         SDL_Quit();
-        std::print("SDL shut down\n");
+        std::print("SDL shut down");
     }
 }
 

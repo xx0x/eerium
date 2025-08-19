@@ -65,8 +65,8 @@ bool Font::LoadFromFile(const std::string& file_path, int point_size)
     font_ = TTF_OpenFont(file_path.c_str(), point_size);
     if (!font_)
     {
-        std::print(stderr, "Failed to load font '{}' at size {}: {}\n",
-                   file_path, point_size, SDL_GetError());
+        std::println(stderr, "Failed to load font '{}' at size {}: {}",
+                     file_path, point_size, SDL_GetError());
         return false;
     }
 

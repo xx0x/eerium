@@ -30,7 +30,7 @@ void ResourceManager::Initialize()
     }
 
     initialized_ = true;
-    std::print("ResourceManager: SDL_ttf initialized successfully\n");
+    std::println("ResourceManager: SDL_ttf initialized successfully");
 }
 
 void ResourceManager::Shutdown()
@@ -46,7 +46,7 @@ void ResourceManager::Shutdown()
     // Then shutdown TTF
     TTF_Quit();
     initialized_ = false;
-    std::print("ResourceManager: SDL_ttf shut down\n");
+    std::println("ResourceManager: SDL_ttf shut down");
 }
 
 void ResourceManager::LoadFont(const std::string& name, const std::string& file_path, int point_size)
@@ -64,8 +64,8 @@ void ResourceManager::LoadFont(const std::string& name, const std::string& file_
     }
 
     fonts_[name] = std::move(font);
-    std::print("ResourceManager: Loaded font '{}' from '{}' at size {}\n",
-               name, file_path, point_size);
+    std::println("ResourceManager: Loaded font '{}' from '{}' at size {}",
+                 name, file_path, point_size);
 }
 
 std::optional<Font> ResourceManager::GetFont(const std::string& name) const
