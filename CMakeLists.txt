@@ -20,6 +20,7 @@ add_executable(eerium
     src/sdl/Window.cpp
     src/sdl/Renderer.cpp
     src/sdl/Context.cpp
+    src/sdl/FpsCounter.cpp
 )
 
 target_include_directories(eerium PRIVATE

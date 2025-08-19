@@ -90,6 +90,9 @@ void Game::PlayerMove(float delta_x, float delta_y)
 
 void Game::Update()
 {
+    // Update FPS counter
+    fps_counter_.Update();
+    
     switch (current_state_)
     {
         case State::MENU:
@@ -180,6 +183,9 @@ void Game::Render()
         case State::QUIT:
             break;
     }
+
+    // Render FPS counter on top of everything in all states
+    fps_counter_.Render(renderer_);
 
     SDL_RenderPresent(renderer_.Get());
 }

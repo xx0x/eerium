@@ -12,6 +12,7 @@
 #include "sdl/Renderer.hpp"
 #include "sdl/ResourceManager.hpp"
 #include "sdl/Window.hpp"
+#include "sdl/FpsCounter.hpp"
 
 namespace eerium
 {
@@ -47,6 +48,7 @@ private:
 
     // Game objects
     MainMenu menu_;
+    sdl::FpsCounter fps_counter_;
 
     // Game data
     objects::Player player1_ = {"Hannah", sdl::kColorMagenta};

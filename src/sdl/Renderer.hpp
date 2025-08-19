@@ -4,11 +4,10 @@
 #include <string>
 
 #include "Color.hpp"
+#include "Font.hpp"
 
 namespace eerium::sdl
 {
-
-class Font;
 
 /**
  * @brief RAII wrapper for SDL_Renderer
