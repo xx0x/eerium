@@ -31,7 +31,6 @@ void Game::HandleEvents()
             current_state_ = State::QUIT;
             return;
         }
-
         switch (current_state_)
         {
             case State::MENU:
@@ -51,16 +50,16 @@ void Game::HandleEvents()
                             current_state_ = State::MENU;
                             break;
                         case SDLK_UP:
-                            player_y_ -= 10;
+                            PlayerMove(0, -10);
                             break;
                         case SDLK_DOWN:
-                            player_y_ += 10;
+                            PlayerMove(0, 10);
                             break;
                         case SDLK_LEFT:
-                            player_x_ -= 10;
+                            PlayerMove(-10, 0);
                             break;
                         case SDLK_RIGHT:
-                            player_x_ += 10;
+                            PlayerMove(10, 0);
                             break;
                     }
                 }
@@ -69,6 +68,11 @@ void Game::HandleEvents()
                 break;
         }
     }
+}
+
+void Game::PlayerMove(float delta_x, float delta_y)
+{
+    player1_.SetPosition(player1_.GetPosition().x + delta_x, player1_.GetPosition().y + delta_y);
 }
 
 void Game::Update()
@@ -112,13 +116,10 @@ void Game::Render()
         case State::PLAYING:
         {
             // Clear screen
-            SDL_SetRenderDrawColor(renderer_.Get(), 0, 0, 0, 255);
-            SDL_RenderClear(renderer_.Get());
+            renderer_.Clear(sdl::kColorBlack);
 
-            // Draw a red rectangle (player)
-            SDL_FRect rect = {(float)player_x_, (float)player_y_, 50.0f, 50.0f};
-            SDL_SetRenderDrawColor(renderer_.Get(), 200, 0, 0, 255);
-            SDL_RenderFillRect(renderer_.Get(), &rect);
+            // Draw the player
+            player1_.Render(renderer_);
         }
         break;
         case State::QUIT:

@@ -5,6 +5,7 @@
 #include <memory>
 
 #include "MainMenu.hpp"
+#include "Player.hpp"
 #include "sdl/Context.hpp"
 #include "sdl/Renderer.hpp"
 #include "sdl/ResourceManager.hpp"
@@ -32,6 +33,8 @@ private:
     void Update();
     void Render();
 
+    void PlayerMove(float delta_x, float delta_y);
+
     // RAII SDL resources - order matters for destruction
     sdl::Context context_;
     sdl::Window window_;
@@ -43,8 +46,7 @@ private:
     MainMenu menu_;
 
     // Game data
-    int player_x_ = 100;
-    int player_y_ = 100;
+    Player player1_ = {"Hannah", sdl::kColorMagenta};
 
     static constexpr char kGameTitle[] = "Eerium";
 };

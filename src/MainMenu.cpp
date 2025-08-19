@@ -2,7 +2,6 @@
 
 #include <print>
 
-#include "Colors.hpp"
 #include "sdl/ResourceManager.hpp"
 
 using namespace eerium;
@@ -57,7 +56,7 @@ void MainMenu::Render(sdl::Renderer& renderer)
     auto window = renderer.GetWindowSize();
 
     // Render title
-    renderer.RenderText("EERIUM", window.width / 2, 100, kColorRedText, *title_font_, sdl::Renderer::TextAlign::CENTER);
+    renderer.RenderText("EERIUM", window.width / 2, 100, sdl::kColorRed, *title_font_, sdl::Renderer::TextAlign::CENTER);
 
     // MainMenu options
     float option_y = 200;
@@ -68,11 +67,11 @@ void MainMenu::Render(sdl::Renderer& renderer)
         // Highlight selected option
         if (i == selected_option_)
         {
-            text_color = kColorSelectedText;
+            text_color = sdl::kColorYellow;
         }
         else
         {
-            text_color = kColorNormalText;
+            text_color = sdl::kColorLightGrey;
         }
 
         // Center the text horizontally
@@ -84,7 +83,7 @@ void MainMenu::Render(sdl::Renderer& renderer)
 
     // Instructions
     renderer.RenderText("Use arrow keys to navigate, Enter to select",
-                        window.width / 2, window.height - 80, kColorNoteText, *menu_font_, sdl::Renderer::TextAlign::CENTER);
+                        window.width / 2, window.height - 80, sdl::kColorDarkGrey, *menu_font_, sdl::Renderer::TextAlign::CENTER);
 }
 
 MainMenu::Item MainMenu::GetActivatedItem() const
