@@ -40,9 +40,10 @@ void ResourceManager::Shutdown()
         return;
     }
 
-    // Clear all fonts (they will auto-cleanup via RAII)
+    // Clear all fonts first (they will auto-cleanup via RAII)
     fonts_.clear();
 
+    // Then shutdown TTF
     TTF_Quit();
     initialized_ = false;
     std::print("ResourceManager: SDL_ttf shut down\n");
@@ -67,14 +68,20 @@ void ResourceManager::LoadFont(const std::string& name, const std::string& file_
                name, file_path, point_size);
 }
 
-const Font& ResourceManager::GetFont(const std::string& name) const
+std::optional<Font> ResourceManager::GetFont(const std::string& name) const
 {
     auto it = fonts_.find(name);
     if (it == fonts_.end())
     {
-        throw std::out_of_range("Font '" + name + "' not found");
+        return std::nullopt;
     }
-    return *it->second;
+    auto& font = it->second;
+    if (!font->IsValid())
+    {
+        return std::nullopt;
+    }
+    // Return a copy of the font
+    return *font;
 }
 
 bool ResourceManager::HasFont(const std::string& name) const
@@ -82,21 +89,9 @@ bool ResourceManager::HasFont(const std::string& name) const
     return fonts_.find(name) != fonts_.end();
 }
 
-const Font* ResourceManager::GetDefaultFont() const
+std::optional<Font> ResourceManager::GetDefaultFont() const
 {
-    auto it = fonts_.find(kDefaultFontName);
-    if (it == fonts_.end())
-    {
-        return nullptr;
-    }
-    
-    const Font* font = it->second.get();
-    if (!font->IsValid())
-    {
-        return nullptr;
-    }
-    
-    return font;
+    return GetFont(kDefaultFontName);
 }
 
 }  // namespace eerium::sdl

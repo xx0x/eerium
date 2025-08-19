@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
+#include <optional>
 
 #include "Font.hpp"
 
@@ -62,10 +63,9 @@ public:
     /**
      * @brief Get a loaded font by name
      * @param name Identifier of the font
-     * @return Reference to the font
-     * @throws std::out_of_range if font not found
+     * @return Copy of the font, or error if not found/invalid
      */
-    const Font& GetFont(const std::string& name) const;
+    std::optional<Font> GetFont(const std::string& name) const;
 
     /**
      * @brief Check if a font is loaded
@@ -76,9 +76,9 @@ public:
 
     /**
      * @brief Get default UI font (convenience method)
-     * @return Pointer to the default UI font, or nullptr if not loaded or invalid
+     * @return Copy of the default UI font, or error if not found/invalid
      */
-    const Font* GetDefaultFont() const;
+    std::optional<Font> GetDefaultFont() const;
 
     // Disable copy/move for singleton
     ResourceManager(const ResourceManager&) = delete;

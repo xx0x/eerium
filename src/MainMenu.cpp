@@ -9,6 +9,10 @@ using namespace eerium;
 MainMenu::MainMenu()
 {
     font_ = sdl::ResourceManager::Instance().GetDefaultFont();
+    if (!font_)
+    {
+        std::println(stderr, "Failed to get default font");
+    }
 }
 
 void MainMenu::Reset()
@@ -39,7 +43,8 @@ void MainMenu::HandleEvent(const SDL_Event& event)
 
 void MainMenu::RenderText(SDL_Renderer* renderer, const std::string& text, int x, int y, SDL_Color color)
 {
-    if (!font_)
+    // Fast path: use our own font copy if available and valid
+    if (!font_ || !font_->IsValid())
     {
         return;
     }

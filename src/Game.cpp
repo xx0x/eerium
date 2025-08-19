@@ -19,9 +19,6 @@ void Game::Run()
         Update();
         Render();
     }
-
-    // ResourceManager will automatically clean up when it goes out of scope
-    sdl::ResourceManager::Instance().Shutdown();
 }
 
 void Game::HandleEvents()

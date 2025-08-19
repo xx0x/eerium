@@ -5,6 +5,7 @@
 #include <array>
 #include <string>
 #include <vector>
+#include <optional>
 
 #include "sdl/Font.hpp"
 
@@ -34,9 +35,8 @@ private:
 
     int selected_option_ = 0;
     bool action_selected_ = false;
-    const sdl::Font* font_ = nullptr;
+    std::optional<sdl::Font> font_;
 
-    void RenderText(SDL_Renderer* renderer, const std::string& text, int x, int y, SDL_Color color);
-};
+    void RenderText(SDL_Renderer* renderer, const std::string& text, int x, int y, SDL_Color color);};
 
 }  // namespace eerium

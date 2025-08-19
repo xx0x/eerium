@@ -30,6 +30,16 @@ public:
     Font(const std::string& file_path, int point_size);
 
     /**
+     * @brief Copy constructor - creates a new font with the same properties
+     */
+    Font(const Font& other);
+
+    /**
+     * @brief Copy assignment operator
+     */
+    Font& operator=(const Font& other);
+
+    /**
      * @brief Move constructor
      */
     Font(Font&& other) noexcept;
@@ -44,9 +54,11 @@ public:
      */
     ~Font();
 
-    // Disable copy operations to prevent double-free
-    Font(const Font&) = delete;
-    Font& operator=(const Font&) = delete;
+    /**
+     * @brief Get the path and size used to load this font (for copying)
+     */
+    const std::string& GetFilePath() const noexcept { return file_path_; }
+    int GetPointSize() const noexcept { return point_size_; }
 
     /**
      * @brief Load font from file path
@@ -99,6 +111,8 @@ public:
 
 private:
     TTF_Font* font_ = nullptr;
+    std::string file_path_;
+    int point_size_ = 0;
 };
 
 }  // namespace eerium::sdl
