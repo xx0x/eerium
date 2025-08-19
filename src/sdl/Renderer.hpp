@@ -1,8 +1,12 @@
 #pragma once
 #include <SDL3/SDL.h>
 
+#include <string>
+
 namespace eerium::sdl
 {
+
+class Font;
 
 /**
  * @brief RAII wrapper for SDL_Renderer
@@ -23,6 +27,36 @@ public:
 
     SDL_Renderer* Get() const noexcept { return renderer_; }
     operator SDL_Renderer*() const noexcept { return renderer_; }
+
+    enum class TextAlign
+    {
+        LEFT,
+        CENTER,
+        RIGHT
+    };
+
+    struct WindowSize
+    {
+        float width;
+        float height;
+    };
+
+    /**
+     * @brief Render text using the provided font
+     * @param text The text to render
+     * @param x X position for the text
+     * @param y Y position for the text
+     * @param color Color of the text
+     * @param font Font to use for rendering
+     * @param align Text alignment (default: LEFT)
+     */
+    void RenderText(const std::string& text, float x, float y, SDL_Color color,
+                    const Font& font, TextAlign align = TextAlign::LEFT);
+
+
+    void Clear(SDL_Color color = {0, 0, 0, 255});
+
+    WindowSize GetWindowSize() const;
 
 private:
     SDL_Renderer* renderer_ = nullptr;

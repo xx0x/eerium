@@ -107,7 +107,7 @@ void Game::Render()
     switch (current_state_)
     {
         case State::MENU:
-            menu_.Render(renderer_.Get());
+            menu_.Render(renderer_);
             break;
         case State::PLAYING:
         {

@@ -2,6 +2,7 @@
 
 #include <print>
 
+#include "Colors.hpp"
 #include "sdl/ResourceManager.hpp"
 
 using namespace eerium;
@@ -41,54 +42,20 @@ void MainMenu::HandleEvent(const SDL_Event& event)
     }
 }
 
-void MainMenu::RenderText(SDL_Renderer* renderer, const std::string& text, int x, int y, SDL_Color color)
+void MainMenu::Render(sdl::Renderer& renderer)
 {
-    // Fast path: use our own font copy if available and valid
+    renderer.Clear();
+
+    // Check if font is available
     if (!font_ || !font_->IsValid())
     {
         return;
     }
 
-    SDL_Surface* text_surface = TTF_RenderText_Solid(font_->Get(), text.c_str(), text.length(), color);
-    if (!text_surface)
-    {
-        std::print(stderr, "Unable to render text surface! SDL_Error: {}\n", SDL_GetError());
-        return;
-    }
-
-    SDL_Texture* text_texture = SDL_CreateTextureFromSurface(renderer, text_surface);
-    if (!text_texture)
-    {
-        std::print(stderr, "Unable to create texture from rendered text! SDL_Error: {}\n", SDL_GetError());
-        SDL_DestroySurface(text_surface);
-        return;
-    }
-
-    int text_width = text_surface->w;
-    int text_height = text_surface->h;
-    SDL_DestroySurface(text_surface);
-
-    // Center the text at the given x position
-    SDL_FRect render_quad = {static_cast<float>(x - text_width / 2), static_cast<float>(y), static_cast<float>(text_width), static_cast<float>(text_height)};
-    SDL_RenderTexture(renderer, text_texture, nullptr, &render_quad);
-
-    SDL_DestroyTexture(text_texture);
-}
-
-void MainMenu::Render(SDL_Renderer* renderer)
-{
-    // Clear screen with dark blue background
-    SDL_SetRenderDrawColor(renderer, 20, 30, 60, 255);
-    SDL_RenderClear(renderer);
-
-    // Get window size for centering
-    SDL_Window* window = SDL_GetRenderWindow(renderer);
-    int window_width, window_height;
-    SDL_GetWindowSize(window, &window_width, &window_height);
+    auto window = renderer.GetWindowSize();
 
     // Render title
-    SDL_Color title_color = {200, 200, 255, 255};  // Light blue
-    RenderText(renderer, "EERIUM", window_width / 2, 100, title_color);
+    renderer.RenderText("EERIUM", window.width / 2, 100, kColorRedText, *font_, sdl::Renderer::TextAlign::CENTER);
 
     // MainMenu options
     float option_y = 200;
@@ -99,24 +66,24 @@ void MainMenu::Render(SDL_Renderer* renderer)
         // Highlight selected option
         if (i == selected_option_)
         {
-            text_color = {255, 255, 100, 255};  // Yellow for selected
+            text_color = kColorSelectedText;
         }
         else
         {
-            text_color = {200, 200, 200, 255};  // Light gray for unselected
+            text_color = kColorNormalText;
         }
 
         // Center the text horizontally
-        int text_x = window_width / 2;
-        int text_y = static_cast<int>(option_y + i * 60);
+        float text_x = window.width / 2;
+        float text_y = option_y + i * 60;
 
-        RenderText(renderer, options_[i].label, text_x, text_y, text_color);
+        renderer.RenderText(options_[i].label, text_x, text_y, text_color, *font_, sdl::Renderer::TextAlign::CENTER);
     }
 
     // Instructions
-    SDL_Color instruction_color = {150, 150, 150, 255};  // Gray
-    RenderText(renderer, "Use arrow keys to navigate, Enter to select",
-               window_width / 2, window_height - 80, instruction_color);
+    SDL_Color instruction_color = kColorNoteText;
+    renderer.RenderText("Use arrow keys to navigate, Enter to select",
+                        window.width / 2, window.height - 80, instruction_color, *font_, sdl::Renderer::TextAlign::CENTER);
 }
 
 MainMenu::Item MainMenu::GetActivatedItem() const

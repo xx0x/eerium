@@ -8,6 +8,7 @@
 #include <optional>
 
 #include "sdl/Font.hpp"
+#include "sdl/Renderer.hpp"
 
 namespace eerium
 {
@@ -24,7 +25,7 @@ public:
     MainMenu();
     void Reset();
     void HandleEvent(const SDL_Event& event);
-    void Render(SDL_Renderer* renderer);
+    void Render(sdl::Renderer& renderer);
     Item GetActivatedItem() const;
 
 private:
@@ -36,7 +37,6 @@ private:
     int selected_option_ = 0;
     bool action_selected_ = false;
     std::optional<sdl::Font> font_;
-
-    void RenderText(SDL_Renderer* renderer, const std::string& text, int x, int y, SDL_Color color);};
+};
 
 }  // namespace eerium
