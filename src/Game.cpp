@@ -127,6 +127,12 @@ void Game::StartGame()
         tree.SetPosition(distX(gen), distY(gen));
     }
     std::println("Trees randomized");
+
+    for (auto& rock : rocks_)
+    {
+        rock.SetPosition(distX(gen), distY(gen));
+    }
+    std::println("Rocks randomized");
 }
 
 void Game::Render()
@@ -140,6 +146,12 @@ void Game::Render()
         {
             // Clear screen
             renderer_.Clear(sdl::kColorBlack);
+
+            // Draw the rocks
+            for (auto& rock : rocks_)
+            {
+                rock.Render(renderer_);
+            }
 
             // Draw the player
             player1_.Render(renderer_);
