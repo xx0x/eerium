@@ -3,6 +3,8 @@
 
 #include <string>
 
+#include "Color.hpp"
+
 namespace eerium::sdl
 {
 
@@ -50,11 +52,10 @@ public:
      * @param font Font to use for rendering
      * @param align Text alignment (default: LEFT)
      */
-    void RenderText(const std::string& text, float x, float y, SDL_Color color,
+    void RenderText(const std::string& text, float x, float y, Color color,
                     const Font& font, TextAlign align = TextAlign::LEFT);
 
-
-    void Clear(SDL_Color color = {0, 0, 0, 255});
+    void Clear(Color color = {0, 0, 0, 255});
 
     WindowSize GetWindowSize() const;
 

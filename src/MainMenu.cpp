@@ -61,7 +61,7 @@ void MainMenu::Render(sdl::Renderer& renderer)
     float option_y = 200;
     for (size_t i = 0; i < options_.size(); ++i)
     {
-        SDL_Color text_color;
+        sdl::Color text_color;
 
         // Highlight selected option
         if (i == selected_option_)
@@ -81,9 +81,8 @@ void MainMenu::Render(sdl::Renderer& renderer)
     }
 
     // Instructions
-    SDL_Color instruction_color = kColorNoteText;
     renderer.RenderText("Use arrow keys to navigate, Enter to select",
-                        window.width / 2, window.height - 80, instruction_color, *font_, sdl::Renderer::TextAlign::CENTER);
+                        window.width / 2, window.height - 80, kColorNoteText, *font_, sdl::Renderer::TextAlign::CENTER);
 }
 
 MainMenu::Item MainMenu::GetActivatedItem() const
