@@ -22,7 +22,11 @@ add_executable(eerium
     src/sdl/Context.cpp
 )
 
-target_include_directories(eerium PRIVATE ${SDL3_INCLUDE_DIRS} ${SDL3_TTF_INCLUDE_DIRS})
+target_include_directories(eerium PRIVATE
+    ${CMAKE_SOURCE_DIR}/src
+    ${SDL3_INCLUDE_DIRS} 
+    ${SDL3_TTF_INCLUDE_DIRS}
+)
 target_link_libraries(eerium PRIVATE ${SDL3_LIBRARIES})
 target_link_directories(eerium PRIVATE ${SDL3_TTF_LIBRARY_DIRS})
 target_link_libraries(eerium PRIVATE ${SDL3_TTF_LIBRARIES})

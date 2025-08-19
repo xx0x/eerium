@@ -88,6 +88,7 @@ void Game::Update()
                 if (action.name == "start")
                 {
                     current_state_ = State::PLAYING;
+                    StartGame();
                     return;
                 }
                 else if (action.name == "quit")
@@ -106,6 +107,18 @@ void Game::Update()
     }
 }
 
+void Game::StartGame()
+{
+    // Initialize game objects
+    player1_.SetPosition(400, 300);
+
+    // Randomize tree positions
+    for (auto& tree : trees_)
+    {
+        tree.SetPosition(rand() % 800, rand() % 600);
+    }
+}
+
 void Game::Render()
 {
     switch (current_state_)
@@ -120,6 +133,12 @@ void Game::Render()
 
             // Draw the player
             player1_.Render(renderer_);
+
+            // Draw the trees
+            for (auto& tree : trees_)
+            {
+                tree.Render(renderer_);
+            }
         }
         break;
         case State::QUIT:

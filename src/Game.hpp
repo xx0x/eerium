@@ -5,7 +5,8 @@
 #include <memory>
 
 #include "MainMenu.hpp"
-#include "Player.hpp"
+#include "objects/Player.hpp"
+#include "objects/Tree.hpp"
 #include "sdl/Context.hpp"
 #include "sdl/Renderer.hpp"
 #include "sdl/ResourceManager.hpp"
@@ -34,6 +35,7 @@ private:
     void Render();
 
     void PlayerMove(float delta_x, float delta_y);
+    void StartGame();
 
     // RAII SDL resources - order matters for destruction
     sdl::Context context_;
@@ -46,7 +48,8 @@ private:
     MainMenu menu_;
 
     // Game data
-    Player player1_ = {"Hannah", sdl::kColorMagenta};
+    objects::Player player1_ = {"Hannah", sdl::kColorMagenta};
+    std::array<objects::Tree, 10> trees_;
 
     static constexpr char kGameTitle[] = "Eerium";
 };
