@@ -184,22 +184,58 @@ public:
         sdl::Color color_;
     };
 
+    enum class Material
+    {
+        GRASS,
+        DIRT,
+        STONE,
+        WATER
+    };
+
     struct Tile
     {
-        sdl::Color color;
+        Material material = Material::GRASS;
     };
+
+    static constexpr sdl::Color MaterialToColor(Material material)
+    {
+        switch (material)
+        {
+            case Material::GRASS:
+                return {50, 200, 50, 255};
+            case Material::DIRT:
+                return {150, 100, 50, 255};
+            case Material::STONE:
+                return {150, 150, 150, 255};
+            case Material::WATER:
+                return {50, 50, 200, 255};
+            default:
+                return {0, 0, 0, 255};  // black for unknown
+        }
+    }
 
     IsoGrid()
     {
-        // Make a simple map with alternating colors
+        Reset();
+    }
+
+    void Reset()
+    {
+        // Make a simple map
         for (int r = 0; r < kMapHeight; ++r)
         {
             for (int c = 0; c < kMapWidth; ++c)
             {
-                if ((r + c) % 2 == 0)
-                    map_[r][c].color = {50, 200, 50, 255};  // green
-                else
-                    map_[r][c].color = {200, 200, 50, 255};  // yellow
+                Tile& tile = map_[r][c];
+                tile.material = Material::GRASS;
+                if (rand() % 8 == 0)
+                {
+                    tile.material = Material::DIRT;
+                }
+                else if (rand() % 7 == 0)
+                {
+                    tile.material = Material::STONE;
+                }
             }
         }
 
@@ -343,7 +379,7 @@ public:
             {
                 Tile& tile = map_[row][col];
                 TileCoord coord = {static_cast<float>(col), static_cast<float>(row)};
-                DrawTile(renderer, coord, tile.color);
+                DrawTile(renderer, coord, MaterialToColor(tile.material));
             }
         }
 

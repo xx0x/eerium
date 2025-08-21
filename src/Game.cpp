@@ -46,17 +46,17 @@ void Game::HandleEvents()
                 {
                     current_state_ = State::MENU;
                 }
-                iso_grid_.HandleEvent(e);
+                if (level_ != nullptr)
+                {
+                    level_->HandleEvent(e);
+                }
                 break;
             case State::PLAYING:
                 if (e.type == SDL_EVENT_KEY_DOWN && e.key.key == SDLK_ESCAPE)
                 {
                     current_state_ = State::MENU;
                 }
-                if (level_ != nullptr)
-                {
-                    level_->HandleEvent(e);
-                }
+                iso_grid_.HandleEvent(e);
                 break;
             case State::QUIT:
                 break;
@@ -79,13 +79,14 @@ void Game::Update()
                 menu_.Reset();
                 if (action.name == "start")
                 {
+                    iso_grid_.Reset();
                     current_state_ = State::PLAYING;
-                    StartGame();
                     return;
                 }
                 else if (action.name == "help")
                 {
                     current_state_ = State::HELP;
+                    StartGame();
                     return;
                 }
                 else if (action.name == "quit")
@@ -97,14 +98,13 @@ void Game::Update()
         }
         break;
         case State::PLAYING:
-            // Game logic would go here
+            iso_grid_.Update();
+            break;
+        case State::HELP:
             if (level_ != nullptr)
             {
                 level_->Update();
             }
-            break;
-        case State::HELP:
-            iso_grid_.Update();
             break;
         case State::QUIT:
             break;
@@ -124,13 +124,13 @@ void Game::Render()
             menu_.Render(renderer_);
             break;
         case State::HELP:
-            iso_grid_.Render(renderer_);
-            break;
-        case State::PLAYING:
             if (level_ != nullptr)
             {
                 level_->Render(renderer_);
             }
+            break;
+        case State::PLAYING:
+            iso_grid_.Render(renderer_);
             break;
         case State::QUIT:
             break;
