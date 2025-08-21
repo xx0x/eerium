@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cmath>
 #include <iostream>
 #include <vector>
 
@@ -31,17 +32,86 @@ public:
             name_ = name;
             color_ = color;
             position_ = {0.0f, 0.0f};
+            target_position_ = {0.0f, 0.0f};
         }
 
         void Reset()
         {
             position_ = {0.0f, 0.0f};
+            target_position_ = {0.0f, 0.0f};
         }
+
+        void Update()
+        {
+            // Smooth movement towards target position
+            static constexpr float kMovementSpeed = 5.0f;  // units per second
+            static constexpr float kMinDistance = 0.01f;   // stop when very close
+
+            float dx = target_position_.x - position_.x;
+            float dy = target_position_.y - position_.y;
+
+            // Calculate distance to target
+            float distance = std::sqrt(dx * dx + dy * dy);
+
+            if (distance > kMinDistance)
+            {
+                // Normalize direction and apply speed
+                float normalizedDx = dx / distance;
+                float normalizedDy = dy / distance;
+
+                // Move towards target (600 = fps)
+                // TODO: Replace with actual delta time for frame rate independence
+                static constexpr float frameTime = 1.0f / 600.0f;
+                static constexpr float moveDistance = kMovementSpeed * frameTime;
+
+                // Don't overshoot the target
+                if (moveDistance > distance)
+                {
+                    position_ = target_position_;
+                }
+                else
+                {
+                    position_.x += normalizedDx * moveDistance;
+                    position_.y += normalizedDy * moveDistance;
+                }
+            }
+        }
+
+        /*
+        // Alternative update method that accepts delta time for frame rate independence
+        void Update(float deltaTime)
+        {
+            constexpr float kMovementSpeed = 5.0f; // units per second
+            constexpr float kMinDistance = 0.01f;  // stop when very close
+
+            float dx = target_position_.x - position_.x;
+            float dy = target_position_.y - position_.y;
+
+            float distance = std::sqrt(dx * dx + dy * dy);
+
+            if (distance > kMinDistance)
+            {
+                float normalizedDx = dx / distance;
+                float normalizedDy = dy / distance;
+
+                float moveDistance = kMovementSpeed * deltaTime;
+
+                if (moveDistance > distance)
+                {
+                    position_ = target_position_;
+                }
+                else
+                {
+                    position_.x += normalizedDx * moveDistance;
+                    position_.y += normalizedDy * moveDistance;
+                }
+            }
+        }*/
 
         void Move(float dx, float dy)
         {
-            position_.x += dx;
-            position_.y += dy;
+            target_position_.x += dx;
+            target_position_.y += dy;
         }
 
         Position GetPosition() const { return position_; }
@@ -51,6 +121,7 @@ public:
     private:
         std::string name_;
         Position position_;
+        Position target_position_;
         sdl::Color color_;
     };
 
@@ -79,6 +150,7 @@ public:
 
     void Update()
     {
+        player_.Update();
     }
 
     void HandleEvent(const SDL_Event& event)
