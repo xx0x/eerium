@@ -202,50 +202,6 @@ public:
     void Update()
     {
         player_.Update();
-
-        // Camera following logic - keep player in center area
-        PixelCoord player_screen_pos = TileToPixel(player_.GetPosition());
-
-        // Calculate center area boundaries using the deadzone divisor
-        // For divisor=5: center area is middle 1/5 of screen, camera follows in outer 4/5
-        float margin_size = window_size_.x / kCameraDeadzoneDivisor;
-        float center_left_bound = (window_size_.x - margin_size) / 2.0f;
-        float center_right_bound = (window_size_.x + margin_size) / 2.0f;
-
-        float margin_size_y = window_size_.y / kCameraDeadzoneDivisor;
-        float center_top_bound = (window_size_.y - margin_size_y) / 2.0f;
-        float center_bottom_bound = (window_size_.y + margin_size_y) / 2.0f;
-
-        // Check if player is outside center area and adjust camera
-        bool needs_camera_update = false;
-        PixelCoord new_offset = offset_;
-
-        if (player_screen_pos.x < center_left_bound)
-        {
-            new_offset.x = offset_.x + (center_left_bound - player_screen_pos.x);
-            needs_camera_update = true;
-        }
-        else if (player_screen_pos.x > center_right_bound)
-        {
-            new_offset.x = offset_.x + (center_right_bound - player_screen_pos.x);
-            needs_camera_update = true;
-        }
-
-        if (player_screen_pos.y < center_top_bound)
-        {
-            new_offset.y = offset_.y + (center_top_bound - player_screen_pos.y);
-            needs_camera_update = true;
-        }
-        else if (player_screen_pos.y > center_bottom_bound)
-        {
-            new_offset.y = offset_.y + (center_bottom_bound - player_screen_pos.y);
-            needs_camera_update = true;
-        }
-
-        if (needs_camera_update)
-        {
-            offset_ = new_offset;
-        }
     }
 
     void HandleEvent(const SDL_Event& event)
@@ -286,13 +242,84 @@ public:
         offset_.y += dy;
     }
 
-    void Render(sdl::Renderer& renderer)
+    void DrawTile(sdl::Renderer& renderer, const TileCoord& position, sdl::Color color)
+    {
+        PixelCoord pixel_pos = TileToPixel(position);
+        float screen_x = pixel_pos.x;
+        float screen_y = pixel_pos.y;
+
+        SDL_FColor fcolor = {color.r / 255.0f, color.g / 255.0f,
+                             color.b / 255.0f, color.a / 255.0f};
+
+        // Diamond vertices with color data
+        SDL_Vertex diamond[4] = {
+            {{screen_x, (screen_y - kTileHeight / 2.0f)}, fcolor, {0.0f, 0.0f}},  // top
+            {{(screen_x + kTileWidth / 2.0f), screen_y}, fcolor, {0.0f, 0.0f}},   // right
+            {{screen_x, (screen_y + kTileHeight / 2.0f)}, fcolor, {0.0f, 0.0f}},  // bottom
+            {{(screen_x - kTileWidth / 2.0f), screen_y}, fcolor, {0.0f, 0.0f}}    // left
+        };
+
+        // Indices for 2 triangles making a diamond
+        int indices[] = {0, 1, 2, 0, 2, 3};
+        SDL_RenderGeometry(renderer, nullptr, diamond, 4, indices, 6);
+    }
+
+    void UpdateCameraBounds(sdl::Renderer& renderer)
     {
         // Update window size for camera system
-        auto window_size_info = renderer.GetWindowSize();
-        window_size_.x = static_cast<float>(window_size_info.width);
-        window_size_.y = static_cast<float>(window_size_info.height);
+        auto window_size = renderer.GetWindowSize();
 
+        // Camera following logic - keep player in center area
+        PixelCoord player_screen_pos = TileToPixel(player_.GetPosition());
+
+        // Calculate center area boundaries using the deadzone divisor
+        // For divisor=5: center area is middle 1/5 of screen, camera follows in outer 4/5
+        float margin_size = window_size.width / kCameraDeadzoneDivisor;
+        float center_left_bound = (window_size.width - margin_size) / 2.0f;
+        float center_right_bound = (window_size.width + margin_size) / 2.0f;
+
+        float margin_size_y = window_size.height / kCameraDeadzoneDivisor;
+        float center_top_bound = (window_size.height - margin_size_y) / 2.0f;
+        float center_bottom_bound = (window_size.height + margin_size_y) / 2.0f;
+
+        // Check if player is outside center area and adjust camera
+        bool needs_camera_update = false;
+        PixelCoord new_offset = offset_;
+
+        if (player_screen_pos.x < center_left_bound)
+        {
+            new_offset.x = offset_.x + (center_left_bound - player_screen_pos.x);
+            needs_camera_update = true;
+        }
+        else if (player_screen_pos.x > center_right_bound)
+        {
+            new_offset.x = offset_.x + (center_right_bound - player_screen_pos.x);
+            needs_camera_update = true;
+        }
+
+        if (player_screen_pos.y < center_top_bound)
+        {
+            new_offset.y = offset_.y + (center_top_bound - player_screen_pos.y);
+            needs_camera_update = true;
+        }
+        else if (player_screen_pos.y > center_bottom_bound)
+        {
+            new_offset.y = offset_.y + (center_bottom_bound - player_screen_pos.y);
+            needs_camera_update = true;
+        }
+
+        if (needs_camera_update)
+        {
+            offset_ = new_offset;
+        }
+    }
+
+    void Render(sdl::Renderer& renderer)
+    {
+        // Update camera bounds
+        UpdateCameraBounds(renderer);
+
+        // Clear renderer
         renderer.Clear(sdl::kColorDarkGrey);
 
         // Draw map
@@ -300,76 +327,19 @@ public:
         {
             for (int col = 0; col < kMapWidth; ++col)
             {
-                PixelCoord pixel_pos = TileToPixel(col, row);
-                float screen_x = pixel_pos.x;
-                float screen_y = pixel_pos.y;
-
-                // Diamond vertices with color data
-                SDL_Vertex diamond[4] = {
-                    {{screen_x, (screen_y - kTileHeight / 2.0f)},
-                     {map_[row][col].color.r / 255.0f, map_[row][col].color.g / 255.0f,
-                      map_[row][col].color.b / 255.0f, map_[row][col].color.a / 255.0f},
-                     {0.0f, 0.0f}},  // top
-                    {{(screen_x + kTileWidth / 2.0f), screen_y},
-                     {map_[row][col].color.r / 255.0f, map_[row][col].color.g / 255.0f,
-                      map_[row][col].color.b / 255.0f, map_[row][col].color.a / 255.0f},
-                     {0.0f, 0.0f}},  // right
-                    {{screen_x, (screen_y + kTileHeight / 2.0f)},
-                     {map_[row][col].color.r / 255.0f, map_[row][col].color.g / 255.0f,
-                      map_[row][col].color.b / 255.0f, map_[row][col].color.a / 255.0f},
-                     {0.0f, 0.0f}},  // bottom
-                    {{(screen_x - kTileWidth / 2.0f), screen_y},
-                     {map_[row][col].color.r / 255.0f, map_[row][col].color.g / 255.0f,
-                      map_[row][col].color.b / 255.0f, map_[row][col].color.a / 255.0f},
-                     {0.0f, 0.0f}}  // left
-                };
-
-                // Indices for 2 triangles making a diamond
-                int indices[] = {0, 1, 2, 0, 2, 3};  // unchanged
-
-                SDL_RenderGeometry(renderer, nullptr,
-                                   diamond, 4,
-                                   indices, 6);
+                Tile& tile = map_[row][col];
+                TileCoord coord = {static_cast<float>(col), static_cast<float>(row)};
+                DrawTile(renderer, coord, tile.color);
             }
         }
 
-        // Draw player using same isometric transformation as tiles
-        PixelCoord player_pixel_pos = TileToPixel(player_.GetPosition().x, player_.GetPosition().y);
-        float player_screen_x = player_pixel_pos.x;
-        float player_screen_y = player_pixel_pos.y;
-
-        // Player diamond vertices with same shape as tiles
-        SDL_Vertex player_diamond[4] = {
-            {{player_screen_x, (player_screen_y - kTileHeight / 2.0f)},
-             {player_.GetColor().r / 255.0f, player_.GetColor().g / 255.0f,
-              player_.GetColor().b / 255.0f, player_.GetColor().a / 255.0f},
-             {0.0f, 0.0f}},  // top
-            {{(player_screen_x + kTileWidth / 2.0f), player_screen_y},
-             {player_.GetColor().r / 255.0f, player_.GetColor().g / 255.0f,
-              player_.GetColor().b / 255.0f, player_.GetColor().a / 255.0f},
-             {0.0f, 0.0f}},  // right
-            {{player_screen_x, (player_screen_y + kTileHeight / 2.0f)},
-             {player_.GetColor().r / 255.0f, player_.GetColor().g / 255.0f,
-              player_.GetColor().b / 255.0f, player_.GetColor().a / 255.0f},
-             {0.0f, 0.0f}},  // bottom
-            {{(player_screen_x - kTileWidth / 2.0f), player_screen_y},
-             {player_.GetColor().r / 255.0f, player_.GetColor().g / 255.0f,
-              player_.GetColor().b / 255.0f, player_.GetColor().a / 255.0f},
-             {0.0f, 0.0f}}  // left
-        };
-
-        // Indices for 2 triangles making a diamond
-        int player_indices[] = {0, 1, 2, 0, 2, 3};
-
-        SDL_RenderGeometry(renderer, nullptr,
-                           player_diamond, 4,
-                           player_indices, 6);
+        // Draw player
+        DrawTile(renderer, player_.GetPosition(), player_.GetColor());
     };
 
 private:
     std::array<std::array<Tile, kMapWidth>, kMapHeight> map_;
     PixelCoord offset_ = {400.0f, 150.0f};
-    PixelCoord window_size_ = {800.0f, 600.0f};  // Default size, updated in Render()
     Player player_ = {"Hannah", sdl::kColorMagenta};
 };
 
