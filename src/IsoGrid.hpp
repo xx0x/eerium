@@ -17,6 +17,13 @@ public:
     static constexpr int kMapWidth = 10;
     static constexpr int kMapHeight = 10;
 
+    struct Player
+    {
+        float x;
+        float y;
+        sdl::Color color;
+    };
+
     struct Tile
     {
         sdl::Color color;
@@ -35,6 +42,11 @@ public:
                     map_[r][c].color = {200, 200, 50, 255};  // yellow
             }
         }
+
+        // Reset player
+        player_.x = kMapWidth / 2;
+        player_.y = kMapHeight / 2;
+        player_.color = sdl::kColorMagenta;
     }
 
     void Update()
@@ -48,16 +60,16 @@ public:
             switch (event.key.key)
             {
                 case SDLK_UP:
-                    OffsetMove(0, -10);
+                    PlayerMove(-1, -1);
                     break;
                 case SDLK_DOWN:
-                    OffsetMove(0, 10);
+                    PlayerMove(1, 1);
                     break;
                 case SDLK_LEFT:
-                    OffsetMove(-10, 0);
+                    PlayerMove(-1, 1);
                     break;
                 case SDLK_RIGHT:
-                    OffsetMove(10, 0);
+                    PlayerMove(1, -1);
                     break;
             }
         }
@@ -67,6 +79,12 @@ public:
     {
         offset_x_ += dx;
         offset_y_ += dy;
+    }
+
+    void PlayerMove(float dx, float dy)
+    {
+        player_.x += dx;
+        player_.y += dy;
     }
 
     void Render(sdl::Renderer& renderer)
@@ -109,12 +127,44 @@ public:
                                    indices, 6);
             }
         }
+
+        // Draw player using same isometric transformation as tiles
+        float playerScreenX = (player_.x - player_.y) * (kTileWidth / 2.0f) + offset_x_;
+        float playerScreenY = (player_.x + player_.y) * (kTileHeight / 2.0f) + offset_y_;
+
+        // Player diamond vertices with same shape as tiles
+        SDL_Vertex playerDiamond[4] = {
+            {{playerScreenX, (playerScreenY - kTileHeight / 2.0f)},
+             {player_.color.r / 255.0f, player_.color.g / 255.0f,
+              player_.color.b / 255.0f, player_.color.a / 255.0f},
+             {0.0f, 0.0f}},  // top
+            {{(playerScreenX + kTileWidth / 2.0f), playerScreenY},
+             {player_.color.r / 255.0f, player_.color.g / 255.0f,
+              player_.color.b / 255.0f, player_.color.a / 255.0f},
+             {0.0f, 0.0f}},  // right
+            {{playerScreenX, (playerScreenY + kTileHeight / 2.0f)},
+             {player_.color.r / 255.0f, player_.color.g / 255.0f,
+              player_.color.b / 255.0f, player_.color.a / 255.0f},
+             {0.0f, 0.0f}},  // bottom
+            {{(playerScreenX - kTileWidth / 2.0f), playerScreenY},
+             {player_.color.r / 255.0f, player_.color.g / 255.0f,
+              player_.color.b / 255.0f, player_.color.a / 255.0f},
+             {0.0f, 0.0f}}  // left
+        };
+
+        // Indices for 2 triangles making a diamond
+        int playerIndices[] = {0, 1, 2, 0, 2, 3};
+
+        SDL_RenderGeometry(renderer, nullptr,
+                           playerDiamond, 4,
+                           playerIndices, 6);
     };
 
 private:
     std::array<std::array<Tile, kMapWidth>, kMapHeight> map_;
     float offset_x_ = 400.0f;
     float offset_y_ = 150.0f;
+    Player player_;
 };
 
 }  // namespace eerium
