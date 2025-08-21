@@ -40,6 +40,14 @@ void Game::HandleEvents()
                 }
                 menu_.HandleEvent(e);
                 break;
+
+            case State::HELP:
+                if (e.type == SDL_EVENT_KEY_DOWN && e.key.key == SDLK_ESCAPE)
+                {
+                    current_state_ = State::MENU;
+                }
+                iso_grid_.HandleEvent(e);
+                break;
             case State::PLAYING:
                 if (e.type == SDL_EVENT_KEY_DOWN && e.key.key == SDLK_ESCAPE)
                 {
@@ -75,6 +83,11 @@ void Game::Update()
                     StartGame();
                     return;
                 }
+                else if (action.name == "help")
+                {
+                    current_state_ = State::HELP;
+                    return;
+                }
                 else if (action.name == "quit")
                 {
                     current_state_ = State::QUIT;
@@ -89,6 +102,9 @@ void Game::Update()
             {
                 level_->Update();
             }
+            break;
+        case State::HELP:
+            iso_grid_.Update();
             break;
         case State::QUIT:
             break;
@@ -106,6 +122,9 @@ void Game::Render()
     {
         case State::MENU:
             menu_.Render(renderer_);
+            break;
+        case State::HELP:
+            iso_grid_.Render(renderer_);
             break;
         case State::PLAYING:
             if (level_ != nullptr)

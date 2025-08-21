@@ -4,16 +4,17 @@
 
 #include <memory>
 
+#include "IsoGrid.hpp"
+#include "Level.hpp"
 #include "MainMenu.hpp"
 #include "objects/Player.hpp"
-#include "objects/Tree.hpp"
 #include "objects/Rock.hpp"
+#include "objects/Tree.hpp"
 #include "sdl/Context.hpp"
+#include "sdl/FpsCounter.hpp"
 #include "sdl/Renderer.hpp"
 #include "sdl/ResourceManager.hpp"
 #include "sdl/Window.hpp"
-#include "sdl/FpsCounter.hpp"
-#include "Level.hpp"
 
 namespace eerium
 {
@@ -25,6 +26,7 @@ public:
     {
         MENU,
         PLAYING,
+        HELP,
         QUIT
     };
 
@@ -52,6 +54,9 @@ private:
 
     // Level
     std::unique_ptr<Level> level_;
+
+    // Playground
+    IsoGrid iso_grid_;
 
     static constexpr char kGameTitle[] = "Eerium";
 };
