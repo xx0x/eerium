@@ -59,9 +59,9 @@ public:
                 float normalizedDx = dx / distance;
                 float normalizedDy = dy / distance;
 
-                // Move towards target (600 = fps)
+                // Move towards target (300 = fps)
                 // TODO: Replace with actual delta time for frame rate independence
-                static constexpr float frameTime = 1.0f / 600.0f;
+                static constexpr float frameTime = 1.0f / 300.0f;
                 static constexpr float moveDistance = kMovementSpeed * frameTime;
 
                 // Don't overshoot the target
@@ -108,10 +108,24 @@ public:
             }
         }*/
 
-        void Move(float dx, float dy)
+        void MoveBy(float dx, float dy)
         {
             target_position_.x += dx;
             target_position_.y += dy;
+        }
+
+        void MoveTo(float x, float y, bool round = true)
+        {
+            if (round)
+            {
+                target_position_.x = std::round(x);
+                target_position_.y = std::round(y);
+            }
+            else
+            {
+                target_position_.x = x;
+                target_position_.y = y;
+            }
         }
 
         Position GetPosition() const { return position_; }
@@ -160,17 +174,35 @@ public:
             switch (event.key.key)
             {
                 case SDLK_UP:
-                    player_.Move(-1, -1);
+                    player_.MoveBy(-1, -1);
                     break;
                 case SDLK_DOWN:
-                    player_.Move(1, 1);
+                    player_.MoveBy(1, 1);
                     break;
                 case SDLK_LEFT:
-                    player_.Move(-1, 1);
+                    player_.MoveBy(-1, 1);
                     break;
                 case SDLK_RIGHT:
-                    player_.Move(1, -1);
+                    player_.MoveBy(1, -1);
                     break;
+            }
+        }
+
+        if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN)
+        {
+            if (event.button.button == SDL_BUTTON_LEFT)
+            {
+                // Convert mouse position to isometric coordinates
+                float mouseX = event.button.x - offset_x_;
+                float mouseY = event.button.y - offset_y_;
+
+                // Reverse isometric transformation
+                // Forward: screenX = (isoX - isoY) * (kTileWidth / 2), screenY = (isoX + isoY) * (kTileHeight / 2)
+                // Reverse: solve the system of equations
+                float isoX = (mouseX / (kTileWidth / 2.0f) + mouseY / (kTileHeight / 2.0f)) / 2.0f;
+                float isoY = (mouseY / (kTileHeight / 2.0f) - mouseX / (kTileWidth / 2.0f)) / 2.0f;
+
+                player_.MoveTo(isoX, isoY);
             }
         }
     }
