@@ -19,6 +19,9 @@ Renderer::Renderer(SDL_Window* window, const char* driver)
         throw Exception(
             std::string("Renderer could not be created! SDL_Error: ") + SDL_GetError());
     }
+
+    // Set the blend mode for the renderer
+    SDL_SetRenderDrawBlendMode(renderer_, SDL_BLENDMODE_BLEND);
 }
 
 Renderer::~Renderer()

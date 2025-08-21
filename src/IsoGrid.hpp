@@ -21,7 +21,7 @@ public:
     // Camera deadzone - the screen is divided into this many parts, camera follows when player leaves center area
     static constexpr float kCameraDeadzoneDivisor = 5.0f;
 
-    static constexpr sdl::Color kHoverColor = {255u, 255u, 255u, 20u};
+    static constexpr sdl::Color kHoverColor = {255u, 255u, 255u, 100u};
 
     // Static helper functions for isometric coordinate transformations
     struct TileCoord
@@ -357,7 +357,7 @@ public:
 private:
     std::array<std::array<Tile, kMapWidth>, kMapHeight> map_;
     PixelCoord offset_ = {400.0f, 150.0f};
-    Player player_ = {"Hannah", {255u, 0u, 255u, 120u}};
+    Player player_ = {"Hannah", {255u, 0u, 255u, 200u}};
     PixelCoord mouse_position_ = {0.0f, 0.0f};
 };
 
