@@ -22,30 +22,41 @@ public:
 
     void Reset()
     {
-        // Initialize game objects
-        player1_.SetPosition(400, 300);
-        player1_.WalkTo({400, 300});
-        std::println("Player initialized at position {}", player1_.GetPosition());
+        // Clear existing objects (if any)
+        objects_.clear();
 
-        // Randomize tree positions
+        // Set up randomizer
         std::random_device rd;
-        std::ranlux24 gen(rd());  // RANLUX random number generator (slow but high quality)
-
+        // RANLUX random number generator (slow but high quality)
+        std::ranlux24 gen(rd());
         // Uniform distributions for x and y coordinates
         std::uniform_int_distribution<int> distX(20, width_ - 20);
         std::uniform_int_distribution<int> distY(20, height_ - 20);
 
-        for (auto& tree : trees_)
-        {
-            tree.SetPosition(distX(gen), distY(gen));
-        }
-        std::println("Trees randomized");
+        // Create player
+        player1_ = std::make_shared<objects::Player>("Hannah", sdl::kColorMagenta);
+        player1_->SetPosition(400, 300);
+        player1_->WalkTo({400, 300});
+        std::println("Player initialized at position {}", player1_->GetPosition());
+        objects_.push_back(player1_);
 
-        for (auto& rock : rocks_)
+        // Create trees
+        for (int i = 0; i < kTreesCount; ++i)
         {
-            rock.SetPosition(distX(gen), distY(gen));
+            auto tree = std::make_shared<objects::Tree>();
+            tree->SetPosition(distX(gen), distY(gen));
+            objects_.push_back(tree);
         }
-        std::println("Rocks randomized");
+        std::println("Trees created");
+
+        // Create rocks
+        for (int i = 0; i < kRocksCount; ++i)
+        {
+            auto rock = std::make_shared<objects::Rock>();
+            rock->SetPosition(distX(gen), distY(gen));
+            objects_.push_back(rock);
+        }
+        std::println("Rocks created");
     }
 
     void Render(sdl::Renderer& renderer)
@@ -53,32 +64,18 @@ public:
         // Clear screen
         renderer.Clear(sdl::kColorBlack);
 
-        // Draw the rocks
-        for (auto& rock : rocks_)
+        // Draw the objects
+        for (auto& object : objects_)
         {
-            rock.Render(renderer);
-        }
-
-        // Draw the player
-        player1_.Render(renderer);
-
-        // Draw the trees
-        for (auto& tree : trees_)
-        {
-            tree.Render(renderer);
+            object->Render(renderer);
         }
     }
 
     void Update()
     {
-        player1_.Update();
-        for (auto& tree : trees_)
+        for (auto& object : objects_)
         {
-            tree.Update();
-        }
-        for (auto& rock : rocks_)
-        {
-            rock.Update();
+            object->Update();
         }
     }
 
@@ -109,27 +106,33 @@ public:
                 float mouse_x = event.button.x;
                 float mouse_y = event.button.y;
                 std::println("Mouse clicked at ({}, {})", mouse_x, mouse_y);
-                player1_.WalkTo({mouse_x, mouse_y});
+                if (player1_ != nullptr)
+                {
+                    player1_->WalkTo({mouse_x, mouse_y});
+                }
             }
         }
     }
 
     void PlayerMove(float delta_x, float delta_y)
     {
-        player1_.WalkTo({player1_.GetPosition().x + delta_x,
-                         player1_.GetPosition().y + delta_y});
+        if (player1_ != nullptr)
+        {
+            player1_->WalkTo({player1_->GetPosition().x + delta_x,
+                              player1_->GetPosition().y + delta_y});
+        }
     }
 
 private:
-
     // Main parameters
     float width_ = 800;
     float height_ = 600;
+    static constexpr std::size_t kTreesCount = 10;
+    static constexpr std::size_t kRocksCount = 10;
 
     // Game objects
-    objects::Player player1_ = {"Hannah", sdl::kColorMagenta};
-    std::array<objects::Tree, 10> trees_;
-    std::array<objects::Rock, 10> rocks_;
+    std::vector<std::shared_ptr<objects::BaseObject>> objects_;
+    std::shared_ptr<objects::Player> player1_;
 };
 
 }  // namespace eerium
