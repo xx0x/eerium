@@ -14,10 +14,10 @@ namespace eerium
 class IsoGrid
 {
 public:
-    static constexpr float kMinTileWidth = 32.0f;    // minimum tile width
-    static constexpr float kMaxTileWidth = 256.0f;   // maximum tile width
-    static constexpr float kDefaultTileWidth = 64.0f; // default tile width
-    static constexpr float kTileAspectRatio = 0.5f;
+    static constexpr float kMinTileWidth = 32.0f;      // minimum tile width
+    static constexpr float kMaxTileWidth = 256.0f;     // maximum tile width
+    static constexpr float kDefaultTileWidth = 64.0f;  // default tile width
+    static constexpr float kTileAspectRatio = 0.45f;   // slightly flatter, not 2:1
     static constexpr int kMapWidth = 10;
     static constexpr int kMapHeight = 10;
 
@@ -355,7 +355,7 @@ public:
             }
             else if (event.wheel.y < 0)
             {
-                ZoomOut(); // Scroll down = zoom out
+                ZoomOut();  // Scroll down = zoom out
             }
         }
     }
@@ -518,7 +518,7 @@ private:
 
     // Zoom-related member variables
     float tile_width_ = kDefaultTileWidth;
-    float tile_height_ = kDefaultTileWidth / 2.0f;  // height is always width / 2
+    float tile_height_ = kDefaultTileWidth * kTileAspectRatio;
 
     SDL_Texture* grass_texture_ = nullptr;
     SDL_Texture* dirt_texture_ = nullptr;
