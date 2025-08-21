@@ -17,11 +17,41 @@ public:
     static constexpr int kMapWidth = 10;
     static constexpr int kMapHeight = 10;
 
-    struct Player
+    class Player
     {
-        float x;
-        float y;
-        sdl::Color color;
+    public:
+        struct Position
+        {
+            float x;
+            float y;
+        };
+
+        Player(const std::string& name, sdl::Color color)
+        {
+            name_ = name;
+            color_ = color;
+            position_ = {0.0f, 0.0f};
+        }
+
+        void Reset()
+        {
+            position_ = {0.0f, 0.0f};
+        }
+
+        void Move(float dx, float dy)
+        {
+            position_.x += dx;
+            position_.y += dy;
+        }
+
+        Position GetPosition() const { return position_; }
+        sdl::Color GetColor() const { return color_; }
+        std::string GetName() const { return name_; }
+
+    private:
+        std::string name_;
+        Position position_;
+        sdl::Color color_;
     };
 
     struct Tile
@@ -44,9 +74,7 @@ public:
         }
 
         // Reset player
-        player_.x = kMapWidth / 2;
-        player_.y = kMapHeight / 2;
-        player_.color = sdl::kColorMagenta;
+        player_.Reset();
     }
 
     void Update()
@@ -60,16 +88,16 @@ public:
             switch (event.key.key)
             {
                 case SDLK_UP:
-                    PlayerMove(-1, -1);
+                    player_.Move(-1, -1);
                     break;
                 case SDLK_DOWN:
-                    PlayerMove(1, 1);
+                    player_.Move(1, 1);
                     break;
                 case SDLK_LEFT:
-                    PlayerMove(-1, 1);
+                    player_.Move(-1, 1);
                     break;
                 case SDLK_RIGHT:
-                    PlayerMove(1, -1);
+                    player_.Move(1, -1);
                     break;
             }
         }
@@ -79,12 +107,6 @@ public:
     {
         offset_x_ += dx;
         offset_y_ += dy;
-    }
-
-    void PlayerMove(float dx, float dy)
-    {
-        player_.x += dx;
-        player_.y += dy;
     }
 
     void Render(sdl::Renderer& renderer)
@@ -129,26 +151,26 @@ public:
         }
 
         // Draw player using same isometric transformation as tiles
-        float playerScreenX = (player_.x - player_.y) * (kTileWidth / 2.0f) + offset_x_;
-        float playerScreenY = (player_.x + player_.y) * (kTileHeight / 2.0f) + offset_y_;
+        float playerScreenX = (player_.GetPosition().x - player_.GetPosition().y) * (kTileWidth / 2.0f) + offset_x_;
+        float playerScreenY = (player_.GetPosition().x + player_.GetPosition().y) * (kTileHeight / 2.0f) + offset_y_;
 
         // Player diamond vertices with same shape as tiles
         SDL_Vertex playerDiamond[4] = {
             {{playerScreenX, (playerScreenY - kTileHeight / 2.0f)},
-             {player_.color.r / 255.0f, player_.color.g / 255.0f,
-              player_.color.b / 255.0f, player_.color.a / 255.0f},
+             {player_.GetColor().r / 255.0f, player_.GetColor().g / 255.0f,
+              player_.GetColor().b / 255.0f, player_.GetColor().a / 255.0f},
              {0.0f, 0.0f}},  // top
             {{(playerScreenX + kTileWidth / 2.0f), playerScreenY},
-             {player_.color.r / 255.0f, player_.color.g / 255.0f,
-              player_.color.b / 255.0f, player_.color.a / 255.0f},
+             {player_.GetColor().r / 255.0f, player_.GetColor().g / 255.0f,
+              player_.GetColor().b / 255.0f, player_.GetColor().a / 255.0f},
              {0.0f, 0.0f}},  // right
             {{playerScreenX, (playerScreenY + kTileHeight / 2.0f)},
-             {player_.color.r / 255.0f, player_.color.g / 255.0f,
-              player_.color.b / 255.0f, player_.color.a / 255.0f},
+             {player_.GetColor().r / 255.0f, player_.GetColor().g / 255.0f,
+              player_.GetColor().b / 255.0f, player_.GetColor().a / 255.0f},
              {0.0f, 0.0f}},  // bottom
             {{(playerScreenX - kTileWidth / 2.0f), playerScreenY},
-             {player_.color.r / 255.0f, player_.color.g / 255.0f,
-              player_.color.b / 255.0f, player_.color.a / 255.0f},
+             {player_.GetColor().r / 255.0f, player_.GetColor().g / 255.0f,
+              player_.GetColor().b / 255.0f, player_.GetColor().a / 255.0f},
              {0.0f, 0.0f}}  // left
         };
 
@@ -164,7 +186,7 @@ private:
     std::array<std::array<Tile, kMapWidth>, kMapHeight> map_;
     float offset_x_ = 400.0f;
     float offset_y_ = 150.0f;
-    Player player_;
+    Player player_ = {"Hannah", sdl::kColorMagenta};
 };
 
 }  // namespace eerium
