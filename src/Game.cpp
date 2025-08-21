@@ -1,8 +1,6 @@
 #include "Game.hpp"
 
 #include <print>
-#include <random>
-
 using namespace eerium;
 
 Game::Game()
@@ -43,37 +41,13 @@ void Game::HandleEvents()
                 menu_.HandleEvent(e);
                 break;
             case State::PLAYING:
-                if (e.type == SDL_EVENT_KEY_DOWN)
+                if (e.type == SDL_EVENT_KEY_DOWN && e.key.key == SDLK_ESCAPE)
                 {
-                    switch (e.key.key)
-                    {
-                        case SDLK_ESCAPE:
-                            current_state_ = State::MENU;
-                            break;
-                        case SDLK_UP:
-                            PlayerMove(0, -10);
-                            break;
-                        case SDLK_DOWN:
-                            PlayerMove(0, 10);
-                            break;
-                        case SDLK_LEFT:
-                            PlayerMove(-10, 0);
-                            break;
-                        case SDLK_RIGHT:
-                            PlayerMove(10, 0);
-                            break;
-                    }
+                    current_state_ = State::MENU;
                 }
-                else if (e.type == SDL_EVENT_MOUSE_BUTTON_DOWN)
+                if (level_ != nullptr)
                 {
-                    if (e.button.button == SDL_BUTTON_LEFT)
-                    {
-                        float mouse_x = e.button.x;
-                        float mouse_y = e.button.y;
-                        // Handle left mouse button click
-                        std::println("Mouse clicked at ({}, {})", mouse_x, mouse_y);
-                        player1_.WalkTo({mouse_x, mouse_y});
-                    }
+                    level_->HandleEvent(e);
                 }
                 break;
             case State::QUIT:
@@ -82,17 +56,11 @@ void Game::HandleEvents()
     }
 }
 
-void Game::PlayerMove(float delta_x, float delta_y)
-{
-    player1_.WalkTo({player1_.GetPosition().x + delta_x,
-                     player1_.GetPosition().y + delta_y});
-}
-
 void Game::Update()
 {
     // Update FPS counter
     fps_counter_.Update();
-    
+
     switch (current_state_)
     {
         case State::MENU:
@@ -117,7 +85,10 @@ void Game::Update()
         break;
         case State::PLAYING:
             // Game logic would go here
-            player1_.Update();
+            if (level_ != nullptr)
+            {
+                level_->Update();
+            }
             break;
         case State::QUIT:
             break;
@@ -126,30 +97,7 @@ void Game::Update()
 
 void Game::StartGame()
 {
-    // Initialize game objects
-    player1_.SetPosition(400, 300);
-    player1_.WalkTo({400, 300});
-    std::println("Player initialized at position {}", player1_.GetPosition());
-
-    // Randomize tree positions
-    std::random_device rd;
-    std::ranlux24 gen(rd());  // RANLUX random number generator (slow but high quality)
-
-    // Uniform distributions for x and y coordinates
-    std::uniform_int_distribution<int> distX(20, renderer_.GetWindowSize().width - 20);
-    std::uniform_int_distribution<int> distY(20, renderer_.GetWindowSize().height - 20);
-
-    for (auto& tree : trees_)
-    {
-        tree.SetPosition(distX(gen), distY(gen));
-    }
-    std::println("Trees randomized");
-
-    for (auto& rock : rocks_)
-    {
-        rock.SetPosition(distX(gen), distY(gen));
-    }
-    std::println("Rocks randomized");
+    level_ = std::make_unique<Level>();
 }
 
 void Game::Render()
@@ -160,26 +108,11 @@ void Game::Render()
             menu_.Render(renderer_);
             break;
         case State::PLAYING:
-        {
-            // Clear screen
-            renderer_.Clear(sdl::kColorBlack);
-
-            // Draw the rocks
-            for (auto& rock : rocks_)
+            if (level_ != nullptr)
             {
-                rock.Render(renderer_);
+                level_->Render(renderer_);
             }
-
-            // Draw the player
-            player1_.Render(renderer_);
-
-            // Draw the trees
-            for (auto& tree : trees_)
-            {
-                tree.Render(renderer_);
-            }
-        }
-        break;
+            break;
         case State::QUIT:
             break;
     }

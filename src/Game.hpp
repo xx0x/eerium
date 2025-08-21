@@ -13,6 +13,7 @@
 #include "sdl/ResourceManager.hpp"
 #include "sdl/Window.hpp"
 #include "sdl/FpsCounter.hpp"
+#include "Level.hpp"
 
 namespace eerium
 {
@@ -36,7 +37,6 @@ private:
     void Update();
     void Render();
 
-    void PlayerMove(float delta_x, float delta_y);
     void StartGame();
 
     // RAII SDL resources - order matters for destruction
@@ -46,14 +46,12 @@ private:
 
     State current_state_ = State::MENU;
 
-    // Game objects
+    // UI
     MainMenu menu_;
     sdl::FpsCounter fps_counter_;
 
-    // Game data
-    objects::Player player1_ = {"Hannah", sdl::kColorMagenta};
-    std::array<objects::Tree, 10> trees_;
-    std::array<objects::Rock, 10> rocks_;
+    // Level
+    std::unique_ptr<Level> level_;
 
     static constexpr char kGameTitle[] = "Eerium";
 };
