@@ -1,5 +1,5 @@
 # Eerium
-C++ game project, something to improve programming skills, not a full game in any means
+C++ playground, something to improve programming skills, not a full game in any means
 
 ## Development Requirements
 
