@@ -21,6 +21,8 @@ public:
     // Camera deadzone - the screen is divided into this many parts, camera follows when player leaves center area
     static constexpr float kCameraDeadzoneDivisor = 5.0f;
 
+    static constexpr sdl::Color kHoverColor = {255u, 255u, 255u, 20u};
+
     // Static helper functions for isometric coordinate transformations
     struct TileCoord
     {
@@ -43,14 +45,20 @@ public:
     }
 
     // Convert pixel coordinates to tile coordinates
-    TileCoord PixelToTile(const PixelCoord& pixel) const
+    TileCoord PixelToTile(const PixelCoord& pixel, bool round = false) const
     {
         float adjusted_x = pixel.x - offset_.x;
         float adjusted_y = pixel.y - offset_.y;
 
-        return {
+        TileCoord result = {
             (adjusted_x / (kTileWidth / 2.0f) + adjusted_y / (kTileHeight / 2.0f)) / 2.0f,
             (adjusted_y / (kTileHeight / 2.0f) - adjusted_x / (kTileWidth / 2.0f)) / 2.0f};
+        if (round)
+        {
+            result.x = std::round(result.x);
+            result.y = std::round(result.y);
+        }
+        return result;
     }
 
     // Convenience overloads for direct float values
@@ -59,7 +67,7 @@ public:
         return TileToPixel({tileX, tileY});
     }
 
-    TileCoord PixelToTile(float pixelX, float pixelY) const
+    TileCoord PixelToTile(float pixelX, float pixelY, bool round = false) const
     {
         return PixelToTile({pixelX, pixelY});
     }
@@ -151,7 +159,7 @@ public:
             target_position_.y += dy;
         }
 
-        void MoveTo(float x, float y, bool round = true)
+        void MoveTo(float x, float y, bool round = false)
         {
             if (round)
             {
@@ -231,8 +239,14 @@ public:
             {
                 // Convert mouse position to tile coordinates using helper function
                 TileCoord tilePos = PixelToTile(event.button.x, event.button.y);
-                player_.MoveTo(tilePos.x, tilePos.y);
+                player_.MoveTo(tilePos.x, tilePos.y, true);
             }
+        }
+
+        if (event.type == SDL_EVENT_MOUSE_MOTION)
+        {
+            mouse_position_.x = event.motion.x;
+            mouse_position_.y = event.motion.y;
         }
     }
 
@@ -335,12 +349,16 @@ public:
 
         // Draw player
         DrawTile(renderer, player_.GetPosition(), player_.GetColor());
+
+        // Draw mouse hover
+        DrawTile(renderer, PixelToTile(mouse_position_, true), kHoverColor);
     };
 
 private:
     std::array<std::array<Tile, kMapWidth>, kMapHeight> map_;
     PixelCoord offset_ = {400.0f, 150.0f};
-    Player player_ = {"Hannah", sdl::kColorMagenta};
+    Player player_ = {"Hannah", {255u, 0u, 255u, 120u}};
+    PixelCoord mouse_position_ = {0.0f, 0.0f};
 };
 
 }  // namespace eerium
