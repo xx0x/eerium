@@ -14,8 +14,10 @@ namespace eerium
 class IsoGrid
 {
 public:
-    static constexpr float kTileWidth = 64.0f;   // diamond width
-    static constexpr float kTileHeight = 32.0f;  // diamond height
+    static constexpr float kMinTileWidth = 32.0f;    // minimum tile width
+    static constexpr float kMaxTileWidth = 256.0f;   // maximum tile width
+    static constexpr float kDefaultTileWidth = 64.0f; // default tile width
+    static constexpr float kTileAspectRatio = 0.5f;
     static constexpr int kMapWidth = 10;
     static constexpr int kMapHeight = 10;
 
@@ -41,8 +43,8 @@ public:
     PixelCoord TileToPixel(const TileCoord& tile) const
     {
         return {
-            (tile.x - tile.y) * (kTileWidth / 2.0f) + offset_.x,
-            (tile.x + tile.y) * (kTileHeight / 2.0f) + offset_.y};
+            (tile.x - tile.y) * (tile_width_ / 2.0f) + offset_.x,
+            (tile.x + tile.y) * (tile_height_ / 2.0f) + offset_.y};
     }
 
     // Convert pixel coordinates to tile coordinates
@@ -52,8 +54,8 @@ public:
         float adjusted_y = pixel.y - offset_.y;
 
         TileCoord result = {
-            (adjusted_x / (kTileWidth / 2.0f) + adjusted_y / (kTileHeight / 2.0f)) / 2.0f,
-            (adjusted_y / (kTileHeight / 2.0f) - adjusted_x / (kTileWidth / 2.0f)) / 2.0f};
+            (adjusted_x / (tile_width_ / 2.0f) + adjusted_y / (tile_height_ / 2.0f)) / 2.0f,
+            (adjusted_y / (tile_height_ / 2.0f) - adjusted_x / (tile_width_ / 2.0f)) / 2.0f};
         if (round)
         {
             result.x = std::round(result.x);
@@ -227,6 +229,35 @@ public:
         }
     }
 
+    // Getter functions for current tile dimensions
+    float GetTileWidth() const { return tile_width_; }
+    float GetTileHeight() const { return tile_height_; }
+
+    // Zoom functionality
+    void SetZoom(float zoom_factor)
+    {
+        float new_width = kDefaultTileWidth * zoom_factor;
+        new_width = std::max(kMinTileWidth, std::min(kMaxTileWidth, new_width));
+        tile_width_ = new_width;
+        tile_height_ = tile_width_ * kTileAspectRatio;
+    }
+
+    void ZoomIn(float factor = 1.1f)
+    {
+        float new_width = tile_width_ * factor;
+        new_width = std::min(kMaxTileWidth, new_width);
+        tile_width_ = new_width;
+        tile_height_ = tile_width_ * kTileAspectRatio;
+    }
+
+    void ZoomOut(float factor = 0.9f)
+    {
+        float new_width = tile_width_ * factor;
+        new_width = std::max(kMinTileWidth, new_width);
+        tile_width_ = new_width;
+        tile_height_ = tile_width_ * kTileAspectRatio;
+    }
+
     IsoGrid()
     {
         Reset();
@@ -314,6 +345,19 @@ public:
             mouse_position_.y = event.motion.y;
             mouse_position_valid_ = true;
         }
+
+        if (event.type == SDL_EVENT_MOUSE_WHEEL)
+        {
+            // Zoom in/out based on wheel direction
+            if (event.wheel.y > 0)
+            {
+                ZoomIn();  // Scroll up = zoom in
+            }
+            else if (event.wheel.y < 0)
+            {
+                ZoomOut(); // Scroll down = zoom out
+            }
+        }
     }
 
     void OffsetMove(float dx, float dy)
@@ -333,10 +377,10 @@ public:
 
         // Diamond vertices with color data
         SDL_Vertex diamond[4] = {
-            {{screen_x, (screen_y - kTileHeight / 2.0f)}, fcolor, {0.0f, 0.0f}},  // top
-            {{(screen_x + kTileWidth / 2.0f), screen_y}, fcolor, {0.0f, 0.0f}},   // right
-            {{screen_x, (screen_y + kTileHeight / 2.0f)}, fcolor, {0.0f, 0.0f}},  // bottom
-            {{(screen_x - kTileWidth / 2.0f), screen_y}, fcolor, {0.0f, 0.0f}}    // left
+            {{screen_x, (screen_y - tile_height_ / 2.0f)}, fcolor, {0.0f, 0.0f}},  // top
+            {{(screen_x + tile_width_ / 2.0f), screen_y}, fcolor, {0.0f, 0.0f}},   // right
+            {{screen_x, (screen_y + tile_height_ / 2.0f)}, fcolor, {0.0f, 0.0f}},  // bottom
+            {{(screen_x - tile_width_ / 2.0f), screen_y}, fcolor, {0.0f, 0.0f}}    // left
         };
 
         // Indices for 2 triangles making a diamond
@@ -351,10 +395,10 @@ public:
         float screen_y = pixel_pos.y;
 
         SDL_FRect dest = {
-            (float)(screen_x - kTileWidth / 2),  // center diamond
-            (float)(screen_y - kTileHeight / 2),
-            (float)kTileWidth,
-            (float)kTileHeight};
+            (float)(screen_x - tile_width_ / 2),  // center diamond
+            (float)(screen_y - tile_height_ / 2),
+            (float)tile_width_,
+            (float)tile_height_};
 
         SDL_RenderTexture(renderer, texture, nullptr, &dest);
     }
@@ -471,6 +515,10 @@ private:
     Player player_ = {"Hannah", {255u, 0u, 255u, 200u}};
     PixelCoord mouse_position_ = {0.0f, 0.0f};
     bool mouse_position_valid_ = false;
+
+    // Zoom-related member variables
+    float tile_width_ = kDefaultTileWidth;
+    float tile_height_ = kDefaultTileWidth / 2.0f;  // height is always width / 2
 
     SDL_Texture* grass_texture_ = nullptr;
     SDL_Texture* dirt_texture_ = nullptr;
