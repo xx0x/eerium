@@ -283,6 +283,7 @@ public:
         {
             mouse_position_.x = event.motion.x;
             mouse_position_.y = event.motion.y;
+            mouse_position_valid_ = true;
         }
     }
 
@@ -361,6 +362,7 @@ public:
         if (needs_camera_update)
         {
             offset_ = new_offset;
+            // mouse_position_valid_ = false;
         }
     }
 
@@ -387,7 +389,10 @@ public:
         DrawTile(renderer, player_.GetPosition(), player_.GetColor());
 
         // Draw mouse hover
-        DrawTile(renderer, PixelToTile(mouse_position_, true), kHoverColor);
+        if (mouse_position_valid_)
+        {
+            DrawTile(renderer, PixelToTile(mouse_position_, true), kHoverColor);
+        }
     };
 
 private:
@@ -395,6 +400,7 @@ private:
     PixelCoord offset_ = {400.0f, 150.0f};
     Player player_ = {"Hannah", {255u, 0u, 255u, 200u}};
     PixelCoord mouse_position_ = {0.0f, 0.0f};
+    bool mouse_position_valid_ = false;
 };
 
 }  // namespace eerium
