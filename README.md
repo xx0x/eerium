@@ -7,8 +7,8 @@ C++ playground, something to improve programming skills, not a full game in any 
 
 ```
 # MacOS
-brew install sdl3 sdl3_ttf
+brew install sdl3 sdl3_ttf sdl3_image
 
 # Linux (Debian-based)
-sudo apt install libsdl3-dev libsdl3-ttf-dev
+sudo apt install libsdl3-dev libsdl3-ttf-dev libsdl3-image-dev
 ```

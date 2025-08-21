@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 
+#include "SDL3_image/SDL_image.h"
 #include "sdl/Color.hpp"
 #include "sdl/Renderer.hpp"
 
@@ -188,8 +189,7 @@ public:
     {
         GRASS,
         DIRT,
-        STONE,
-        WATER
+        STONE
     };
 
     struct Tile
@@ -207,16 +207,45 @@ public:
                 return {150, 100, 50, 255};
             case Material::STONE:
                 return {150, 150, 150, 255};
-            case Material::WATER:
-                return {50, 50, 200, 255};
             default:
                 return {0, 0, 0, 255};  // black for unknown
+        }
+    }
+
+    SDL_Texture* MaterialToTexture(Material material)
+    {
+        switch (material)
+        {
+            case Material::GRASS:
+                return grass_texture_;
+            case Material::DIRT:
+                return dirt_texture_;
+            case Material::STONE:
+                return stone_texture_;
+            default:
+                return nullptr;
         }
     }
 
     IsoGrid()
     {
         Reset();
+    }
+
+    ~IsoGrid()
+    {
+        if (grass_texture_)
+        {
+            SDL_DestroyTexture(grass_texture_);
+        }
+        if (dirt_texture_)
+        {
+            SDL_DestroyTexture(dirt_texture_);
+        }
+        if (stone_texture_)
+        {
+            SDL_DestroyTexture(stone_texture_);
+        }
     }
 
     void Reset()
@@ -315,6 +344,21 @@ public:
         SDL_RenderGeometry(renderer, nullptr, diamond, 4, indices, 6);
     }
 
+    void DrawTile(sdl::Renderer& renderer, const TileCoord& position, SDL_Texture* texture)
+    {
+        PixelCoord pixel_pos = TileToPixel(position);
+        float screen_x = pixel_pos.x;
+        float screen_y = pixel_pos.y;
+
+        SDL_FRect dest = {
+            (float)(screen_x - kTileWidth / 2),  // center diamond
+            (float)(screen_y - kTileHeight / 2),
+            (float)kTileWidth,
+            (float)kTileHeight};
+
+        SDL_RenderTexture(renderer, texture, nullptr, &dest);
+    }
+
     void UpdateCameraBounds(sdl::Renderer& renderer)
     {
         // Update window size for camera system
@@ -368,6 +412,32 @@ public:
 
     void Render(sdl::Renderer& renderer)
     {
+        if (grass_texture_ == nullptr)
+        {
+            // Load textures if not already done
+            grass_texture_ = IMG_LoadTexture(renderer, "../resources/textures/grass.png");
+            if (!grass_texture_)
+            {
+                throw std::runtime_error("Failed to load grass texture");
+            }
+        }
+        if (dirt_texture_ == nullptr)
+        {
+            dirt_texture_ = IMG_LoadTexture(renderer, "../resources/textures/dirt.png");
+            if (!dirt_texture_)
+            {
+                throw std::runtime_error("Failed to load dirt texture");
+            }
+        }
+        if (stone_texture_ == nullptr)
+        {
+            stone_texture_ = IMG_LoadTexture(renderer, "../resources/textures/stone.png");
+            if (!stone_texture_)
+            {
+                throw std::runtime_error("Failed to load stone texture");
+            }
+        }
+
         // Update camera bounds
         UpdateCameraBounds(renderer);
 
@@ -381,7 +451,7 @@ public:
             {
                 Tile& tile = map_[row][col];
                 TileCoord coord = {static_cast<float>(col), static_cast<float>(row)};
-                DrawTile(renderer, coord, MaterialToColor(tile.material));
+                DrawTile(renderer, coord, MaterialToTexture(tile.material));
             }
         }
 
@@ -401,6 +471,10 @@ private:
     Player player_ = {"Hannah", {255u, 0u, 255u, 200u}};
     PixelCoord mouse_position_ = {0.0f, 0.0f};
     bool mouse_position_valid_ = false;
+
+    SDL_Texture* grass_texture_ = nullptr;
+    SDL_Texture* dirt_texture_ = nullptr;
+    SDL_Texture* stone_texture_ = nullptr;
 };
 
 }  // namespace eerium
