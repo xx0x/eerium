@@ -17,7 +17,7 @@ public:
     static constexpr float kTileHeight = 32.0f;  // diamond height
     static constexpr int kMapWidth = 10;
     static constexpr int kMapHeight = 10;
-    
+
     // Camera deadzone - the screen is divided into this many parts, camera follows when player leaves center area
     static constexpr float kCameraDeadzoneDivisor = 5.0f;
 
@@ -39,20 +39,18 @@ public:
     {
         return {
             (tile.x - tile.y) * (kTileWidth / 2.0f) + offset_.x,
-            (tile.x + tile.y) * (kTileHeight / 2.0f) + offset_.y
-        };
+            (tile.x + tile.y) * (kTileHeight / 2.0f) + offset_.y};
     }
 
     // Convert pixel coordinates to tile coordinates
     TileCoord PixelToTile(const PixelCoord& pixel) const
     {
-        float adjustedX = pixel.x - offset_.x;
-        float adjustedY = pixel.y - offset_.y;
-        
+        float adjusted_x = pixel.x - offset_.x;
+        float adjusted_y = pixel.y - offset_.y;
+
         return {
-            (adjustedX / (kTileWidth / 2.0f) + adjustedY / (kTileHeight / 2.0f)) / 2.0f,
-            (adjustedY / (kTileHeight / 2.0f) - adjustedX / (kTileWidth / 2.0f)) / 2.0f
-        };
+            (adjusted_x / (kTileWidth / 2.0f) + adjusted_y / (kTileHeight / 2.0f)) / 2.0f,
+            (adjusted_y / (kTileHeight / 2.0f) - adjusted_x / (kTileWidth / 2.0f)) / 2.0f};
     }
 
     // Convenience overloads for direct float values
@@ -88,33 +86,30 @@ public:
             // Smooth movement towards target position
             static constexpr float kMovementSpeed = 5.0f;  // units per second
             static constexpr float kMinDistance = 0.01f;   // stop when very close
+            // Move towards target (300 = fps)
+            // TODO: Replace with actual delta time for frame rate independence
+            static constexpr float kFrameTime = 1.0f / 300.0f;
+            static constexpr float kMoveDistance = kMovementSpeed * kFrameTime;
 
             float dx = target_position_.x - position_.x;
             float dy = target_position_.y - position_.y;
-
             // Calculate distance to target
             float distance = std::sqrt(dx * dx + dy * dy);
-
             if (distance > kMinDistance)
             {
                 // Normalize direction and apply speed
-                float normalizedDx = dx / distance;
-                float normalizedDy = dy / distance;
-
-                // Move towards target (300 = fps)
-                // TODO: Replace with actual delta time for frame rate independence
-                static constexpr float frameTime = 1.0f / 300.0f;
-                static constexpr float moveDistance = kMovementSpeed * frameTime;
+                float normalized_dx = dx / distance;
+                float normalized_dy = dy / distance;
 
                 // Don't overshoot the target
-                if (moveDistance > distance)
+                if (kMoveDistance > distance)
                 {
                     position_ = target_position_;
                 }
                 else
                 {
-                    position_.x += normalizedDx * moveDistance;
-                    position_.y += normalizedDy * moveDistance;
+                    position_.x += normalized_dx * kMoveDistance;
+                    position_.y += normalized_dy * kMoveDistance;
                 }
             }
         }
@@ -133,8 +128,8 @@ public:
 
             if (distance > kMinDistance)
             {
-                float normalizedDx = dx / distance;
-                float normalizedDy = dy / distance;
+                float normalized_dx = dx / distance;
+                float normalized_dy = dy / distance;
 
                 float moveDistance = kMovementSpeed * deltaTime;
 
@@ -144,8 +139,8 @@ public:
                 }
                 else
                 {
-                    position_.x += normalizedDx * moveDistance;
-                    position_.y += normalizedDy * moveDistance;
+                    position_.x += normalized_dx * moveDistance;
+                    position_.y += normalized_dy * moveDistance;
                 }
             }
         }*/
@@ -207,49 +202,49 @@ public:
     void Update()
     {
         player_.Update();
-        
+
         // Camera following logic - keep player in center area
-        PixelCoord playerScreenPos = TileToPixel(player_.GetPosition());
-        
+        PixelCoord player_screen_pos = TileToPixel(player_.GetPosition());
+
         // Calculate center area boundaries using the deadzone divisor
         // For divisor=5: center area is middle 1/5 of screen, camera follows in outer 4/5
-        float marginSize = windowSize_.x / kCameraDeadzoneDivisor;
-        float centerLeftBound = (windowSize_.x - marginSize) / 2.0f;
-        float centerRightBound = (windowSize_.x + marginSize) / 2.0f;
-        
-        float marginSizeY = windowSize_.y / kCameraDeadzoneDivisor;
-        float centerTopBound = (windowSize_.y - marginSizeY) / 2.0f;
-        float centerBottomBound = (windowSize_.y + marginSizeY) / 2.0f;
-        
+        float margin_size = window_size_.x / kCameraDeadzoneDivisor;
+        float center_left_bound = (window_size_.x - margin_size) / 2.0f;
+        float center_right_bound = (window_size_.x + margin_size) / 2.0f;
+
+        float margin_size_y = window_size_.y / kCameraDeadzoneDivisor;
+        float center_top_bound = (window_size_.y - margin_size_y) / 2.0f;
+        float center_bottom_bound = (window_size_.y + margin_size_y) / 2.0f;
+
         // Check if player is outside center area and adjust camera
-        bool needsCameraUpdate = false;
-        PixelCoord newOffset = offset_;
-        
-        if (playerScreenPos.x < centerLeftBound)
+        bool needs_camera_update = false;
+        PixelCoord new_offset = offset_;
+
+        if (player_screen_pos.x < center_left_bound)
         {
-            newOffset.x = offset_.x + (centerLeftBound - playerScreenPos.x);
-            needsCameraUpdate = true;
+            new_offset.x = offset_.x + (center_left_bound - player_screen_pos.x);
+            needs_camera_update = true;
         }
-        else if (playerScreenPos.x > centerRightBound)
+        else if (player_screen_pos.x > center_right_bound)
         {
-            newOffset.x = offset_.x + (centerRightBound - playerScreenPos.x);
-            needsCameraUpdate = true;
+            new_offset.x = offset_.x + (center_right_bound - player_screen_pos.x);
+            needs_camera_update = true;
         }
-        
-        if (playerScreenPos.y < centerTopBound)
+
+        if (player_screen_pos.y < center_top_bound)
         {
-            newOffset.y = offset_.y + (centerTopBound - playerScreenPos.y);
-            needsCameraUpdate = true;
+            new_offset.y = offset_.y + (center_top_bound - player_screen_pos.y);
+            needs_camera_update = true;
         }
-        else if (playerScreenPos.y > centerBottomBound)
+        else if (player_screen_pos.y > center_bottom_bound)
         {
-            newOffset.y = offset_.y + (centerBottomBound - playerScreenPos.y);
-            needsCameraUpdate = true;
+            new_offset.y = offset_.y + (center_bottom_bound - player_screen_pos.y);
+            needs_camera_update = true;
         }
-        
-        if (needsCameraUpdate)
+
+        if (needs_camera_update)
         {
-            offset_ = newOffset;
+            offset_ = new_offset;
         }
     }
 
@@ -294,10 +289,10 @@ public:
     void Render(sdl::Renderer& renderer)
     {
         // Update window size for camera system
-        auto windowSizeInfo = renderer.GetWindowSize();
-        windowSize_.x = static_cast<float>(windowSizeInfo.width);
-        windowSize_.y = static_cast<float>(windowSizeInfo.height);
-        
+        auto window_size_info = renderer.GetWindowSize();
+        window_size_.x = static_cast<float>(window_size_info.width);
+        window_size_.y = static_cast<float>(window_size_info.height);
+
         renderer.Clear(sdl::kColorDarkGrey);
 
         // Draw map
@@ -305,32 +300,32 @@ public:
         {
             for (int col = 0; col < kMapWidth; ++col)
             {
-                PixelCoord pixelPos = TileToPixel(col, row);
-                float screenX = pixelPos.x;
-                float screenY = pixelPos.y;
+                PixelCoord pixel_pos = TileToPixel(col, row);
+                float screen_x = pixel_pos.x;
+                float screen_y = pixel_pos.y;
 
                 // Diamond vertices with color data
                 SDL_Vertex diamond[4] = {
-                    {{screenX, (screenY - kTileHeight / 2.0f)},
+                    {{screen_x, (screen_y - kTileHeight / 2.0f)},
                      {map_[row][col].color.r / 255.0f, map_[row][col].color.g / 255.0f,
                       map_[row][col].color.b / 255.0f, map_[row][col].color.a / 255.0f},
                      {0.0f, 0.0f}},  // top
-                    {{(screenX + kTileWidth / 2.0f), screenY},
+                    {{(screen_x + kTileWidth / 2.0f), screen_y},
                      {map_[row][col].color.r / 255.0f, map_[row][col].color.g / 255.0f,
                       map_[row][col].color.b / 255.0f, map_[row][col].color.a / 255.0f},
                      {0.0f, 0.0f}},  // right
-                    {{screenX, (screenY + kTileHeight / 2.0f)},
+                    {{screen_x, (screen_y + kTileHeight / 2.0f)},
                      {map_[row][col].color.r / 255.0f, map_[row][col].color.g / 255.0f,
                       map_[row][col].color.b / 255.0f, map_[row][col].color.a / 255.0f},
                      {0.0f, 0.0f}},  // bottom
-                    {{(screenX - kTileWidth / 2.0f), screenY},
+                    {{(screen_x - kTileWidth / 2.0f), screen_y},
                      {map_[row][col].color.r / 255.0f, map_[row][col].color.g / 255.0f,
                       map_[row][col].color.b / 255.0f, map_[row][col].color.a / 255.0f},
                      {0.0f, 0.0f}}  // left
                 };
 
                 // Indices for 2 triangles making a diamond
-                int indices[] = {0, 1, 2, 0, 2, 3};
+                int indices[] = {0, 1, 2, 0, 2, 3};  // unchanged
 
                 SDL_RenderGeometry(renderer, nullptr,
                                    diamond, 4,
@@ -339,42 +334,42 @@ public:
         }
 
         // Draw player using same isometric transformation as tiles
-        PixelCoord playerPixelPos = TileToPixel(player_.GetPosition().x, player_.GetPosition().y);
-        float playerScreenX = playerPixelPos.x;
-        float playerScreenY = playerPixelPos.y;
+        PixelCoord player_pixel_pos = TileToPixel(player_.GetPosition().x, player_.GetPosition().y);
+        float player_screen_x = player_pixel_pos.x;
+        float player_screen_y = player_pixel_pos.y;
 
         // Player diamond vertices with same shape as tiles
-        SDL_Vertex playerDiamond[4] = {
-            {{playerScreenX, (playerScreenY - kTileHeight / 2.0f)},
+        SDL_Vertex player_diamond[4] = {
+            {{player_screen_x, (player_screen_y - kTileHeight / 2.0f)},
              {player_.GetColor().r / 255.0f, player_.GetColor().g / 255.0f,
               player_.GetColor().b / 255.0f, player_.GetColor().a / 255.0f},
              {0.0f, 0.0f}},  // top
-            {{(playerScreenX + kTileWidth / 2.0f), playerScreenY},
+            {{(player_screen_x + kTileWidth / 2.0f), player_screen_y},
              {player_.GetColor().r / 255.0f, player_.GetColor().g / 255.0f,
               player_.GetColor().b / 255.0f, player_.GetColor().a / 255.0f},
              {0.0f, 0.0f}},  // right
-            {{playerScreenX, (playerScreenY + kTileHeight / 2.0f)},
+            {{player_screen_x, (player_screen_y + kTileHeight / 2.0f)},
              {player_.GetColor().r / 255.0f, player_.GetColor().g / 255.0f,
               player_.GetColor().b / 255.0f, player_.GetColor().a / 255.0f},
              {0.0f, 0.0f}},  // bottom
-            {{(playerScreenX - kTileWidth / 2.0f), playerScreenY},
+            {{(player_screen_x - kTileWidth / 2.0f), player_screen_y},
              {player_.GetColor().r / 255.0f, player_.GetColor().g / 255.0f,
               player_.GetColor().b / 255.0f, player_.GetColor().a / 255.0f},
              {0.0f, 0.0f}}  // left
         };
 
         // Indices for 2 triangles making a diamond
-        int playerIndices[] = {0, 1, 2, 0, 2, 3};
+        int player_indices[] = {0, 1, 2, 0, 2, 3};
 
         SDL_RenderGeometry(renderer, nullptr,
-                           playerDiamond, 4,
-                           playerIndices, 6);
+                           player_diamond, 4,
+                           player_indices, 6);
     };
 
 private:
     std::array<std::array<Tile, kMapWidth>, kMapHeight> map_;
     PixelCoord offset_ = {400.0f, 150.0f};
-    PixelCoord windowSize_ = {800.0f, 600.0f};  // Default size, updated in Render()
+    PixelCoord window_size_ = {800.0f, 600.0f};  // Default size, updated in Render()
     Player player_ = {"Hannah", sdl::kColorMagenta};
 };
 
