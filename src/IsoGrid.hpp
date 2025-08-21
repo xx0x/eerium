@@ -18,15 +18,54 @@ public:
     static constexpr int kMapWidth = 10;
     static constexpr int kMapHeight = 10;
 
+    // Static helper functions for isometric coordinate transformations
+    struct TileCoord
+    {
+        float x;
+        float y;
+    };
+
+    struct PixelCoord
+    {
+        float x;
+        float y;
+    };
+
+    // Convert tile coordinates to pixel coordinates
+    PixelCoord TileToPixel(const TileCoord& tile) const
+    {
+        return {
+            (tile.x - tile.y) * (kTileWidth / 2.0f) + offset_.x,
+            (tile.x + tile.y) * (kTileHeight / 2.0f) + offset_.y
+        };
+    }
+
+    // Convert pixel coordinates to tile coordinates
+    TileCoord PixelToTile(const PixelCoord& pixel) const
+    {
+        float adjustedX = pixel.x - offset_.x;
+        float adjustedY = pixel.y - offset_.y;
+        
+        return {
+            (adjustedX / (kTileWidth / 2.0f) + adjustedY / (kTileHeight / 2.0f)) / 2.0f,
+            (adjustedY / (kTileHeight / 2.0f) - adjustedX / (kTileWidth / 2.0f)) / 2.0f
+        };
+    }
+
+    // Convenience overloads for direct float values
+    PixelCoord TileToPixel(float tileX, float tileY) const
+    {
+        return TileToPixel({tileX, tileY});
+    }
+
+    TileCoord PixelToTile(float pixelX, float pixelY) const
+    {
+        return PixelToTile({pixelX, pixelY});
+    }
+
     class Player
     {
     public:
-        struct Position
-        {
-            float x;
-            float y;
-        };
-
         Player(const std::string& name, sdl::Color color)
         {
             name_ = name;
@@ -128,14 +167,14 @@ public:
             }
         }
 
-        Position GetPosition() const { return position_; }
+        TileCoord GetPosition() const { return position_; }
         sdl::Color GetColor() const { return color_; }
         std::string GetName() const { return name_; }
 
     private:
         std::string name_;
-        Position position_;
-        Position target_position_;
+        TileCoord position_;
+        TileCoord target_position_;
         sdl::Color color_;
     };
 
@@ -192,25 +231,17 @@ public:
         {
             if (event.button.button == SDL_BUTTON_LEFT)
             {
-                // Convert mouse position to isometric coordinates
-                float mouseX = event.button.x - offset_x_;
-                float mouseY = event.button.y - offset_y_;
-
-                // Reverse isometric transformation
-                // Forward: screenX = (isoX - isoY) * (kTileWidth / 2), screenY = (isoX + isoY) * (kTileHeight / 2)
-                // Reverse: solve the system of equations
-                float isoX = (mouseX / (kTileWidth / 2.0f) + mouseY / (kTileHeight / 2.0f)) / 2.0f;
-                float isoY = (mouseY / (kTileHeight / 2.0f) - mouseX / (kTileWidth / 2.0f)) / 2.0f;
-
-                player_.MoveTo(isoX, isoY);
+                // Convert mouse position to tile coordinates using helper function
+                TileCoord tilePos = PixelToTile(event.button.x, event.button.y);
+                player_.MoveTo(tilePos.x, tilePos.y);
             }
         }
     }
 
     void OffsetMove(float dx, float dy)
     {
-        offset_x_ += dx;
-        offset_y_ += dy;
+        offset_.x += dx;
+        offset_.y += dy;
     }
 
     void Render(sdl::Renderer& renderer)
@@ -222,8 +253,9 @@ public:
         {
             for (int col = 0; col < kMapWidth; ++col)
             {
-                float screenX = (col - row) * (kTileWidth / 2.0f) + offset_x_;
-                float screenY = (col + row) * (kTileHeight / 2.0f) + offset_y_;
+                PixelCoord pixelPos = TileToPixel(col, row);
+                float screenX = pixelPos.x;
+                float screenY = pixelPos.y;
 
                 // Diamond vertices with color data
                 SDL_Vertex diamond[4] = {
@@ -255,8 +287,9 @@ public:
         }
 
         // Draw player using same isometric transformation as tiles
-        float playerScreenX = (player_.GetPosition().x - player_.GetPosition().y) * (kTileWidth / 2.0f) + offset_x_;
-        float playerScreenY = (player_.GetPosition().x + player_.GetPosition().y) * (kTileHeight / 2.0f) + offset_y_;
+        PixelCoord playerPixelPos = TileToPixel(player_.GetPosition().x, player_.GetPosition().y);
+        float playerScreenX = playerPixelPos.x;
+        float playerScreenY = playerPixelPos.y;
 
         // Player diamond vertices with same shape as tiles
         SDL_Vertex playerDiamond[4] = {
@@ -288,8 +321,7 @@ public:
 
 private:
     std::array<std::array<Tile, kMapWidth>, kMapHeight> map_;
-    float offset_x_ = 400.0f;
-    float offset_y_ = 150.0f;
+    PixelCoord offset_ = {400.0f, 150.0f};
     Player player_ = {"Hannah", sdl::kColorMagenta};
 };
 
