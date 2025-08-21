@@ -17,6 +17,9 @@ public:
     static constexpr float kTileHeight = 32.0f;  // diamond height
     static constexpr int kMapWidth = 10;
     static constexpr int kMapHeight = 10;
+    
+    // Camera deadzone - the screen is divided into this many parts, camera follows when player leaves center area
+    static constexpr float kCameraDeadzoneDivisor = 5.0f;
 
     // Static helper functions for isometric coordinate transformations
     struct TileCoord
@@ -204,6 +207,50 @@ public:
     void Update()
     {
         player_.Update();
+        
+        // Camera following logic - keep player in center area
+        PixelCoord playerScreenPos = TileToPixel(player_.GetPosition());
+        
+        // Calculate center area boundaries using the deadzone divisor
+        // For divisor=5: center area is middle 1/5 of screen, camera follows in outer 4/5
+        float marginSize = windowSize_.x / kCameraDeadzoneDivisor;
+        float centerLeftBound = (windowSize_.x - marginSize) / 2.0f;
+        float centerRightBound = (windowSize_.x + marginSize) / 2.0f;
+        
+        float marginSizeY = windowSize_.y / kCameraDeadzoneDivisor;
+        float centerTopBound = (windowSize_.y - marginSizeY) / 2.0f;
+        float centerBottomBound = (windowSize_.y + marginSizeY) / 2.0f;
+        
+        // Check if player is outside center area and adjust camera
+        bool needsCameraUpdate = false;
+        PixelCoord newOffset = offset_;
+        
+        if (playerScreenPos.x < centerLeftBound)
+        {
+            newOffset.x = offset_.x + (centerLeftBound - playerScreenPos.x);
+            needsCameraUpdate = true;
+        }
+        else if (playerScreenPos.x > centerRightBound)
+        {
+            newOffset.x = offset_.x + (centerRightBound - playerScreenPos.x);
+            needsCameraUpdate = true;
+        }
+        
+        if (playerScreenPos.y < centerTopBound)
+        {
+            newOffset.y = offset_.y + (centerTopBound - playerScreenPos.y);
+            needsCameraUpdate = true;
+        }
+        else if (playerScreenPos.y > centerBottomBound)
+        {
+            newOffset.y = offset_.y + (centerBottomBound - playerScreenPos.y);
+            needsCameraUpdate = true;
+        }
+        
+        if (needsCameraUpdate)
+        {
+            offset_ = newOffset;
+        }
     }
 
     void HandleEvent(const SDL_Event& event)
@@ -246,6 +293,11 @@ public:
 
     void Render(sdl::Renderer& renderer)
     {
+        // Update window size for camera system
+        auto windowSizeInfo = renderer.GetWindowSize();
+        windowSize_.x = static_cast<float>(windowSizeInfo.width);
+        windowSize_.y = static_cast<float>(windowSizeInfo.height);
+        
         renderer.Clear(sdl::kColorDarkGrey);
 
         // Draw map
@@ -322,6 +374,7 @@ public:
 private:
     std::array<std::array<Tile, kMapWidth>, kMapHeight> map_;
     PixelCoord offset_ = {400.0f, 150.0f};
+    PixelCoord windowSize_ = {800.0f, 600.0f};  // Default size, updated in Render()
     Player player_ = {"Hannah", sdl::kColorMagenta};
 };
 
