@@ -14,12 +14,14 @@ namespace eerium
 class IsoGrid
 {
 public:
-    static constexpr float kMinTileWidth = 32.0f;      // minimum tile width
-    static constexpr float kMaxTileWidth = 256.0f;     // maximum tile width
-    static constexpr float kDefaultTileWidth = 64.0f;  // default tile width
+    // Tile size: 160x80
+
+    static constexpr float kMinTileWidth = 40.0f;      // minimum tile width
+    static constexpr float kMaxTileWidth = 240.0f;     // maximum tile width
+    static constexpr float kDefaultTileWidth = 80.0f;  // default tile width
     static constexpr float kTileAspectRatio = 0.45f;   // slightly flatter, not 2:1
-    static constexpr int kMapWidth = 10;
-    static constexpr int kMapHeight = 10;
+    static constexpr int kMapWidth = 33;
+    static constexpr int kMapHeight = 33;
 
     // Camera deadzone - the screen is divided into this many parts, camera follows when player leaves center area
     static constexpr float kCameraDeadzoneDivisor = 5.0f;
@@ -86,10 +88,10 @@ public:
             target_position_ = {0.0f, 0.0f};
         }
 
-        void Reset()
+        void Reset(TileCoord original_position = {0.0f, 0.0f})
         {
-            position_ = {0.0f, 0.0f};
-            target_position_ = {0.0f, 0.0f};
+            position_ = original_position;
+            target_position_ = original_position;
         }
 
         void Update()
@@ -300,7 +302,7 @@ public:
         }
 
         // Reset player
-        player_.Reset();
+        player_.Reset({kMapWidth / 2, kMapHeight / 2});
     }
 
     void Update()
