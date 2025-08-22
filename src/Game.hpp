@@ -5,11 +5,7 @@
 #include <memory>
 
 #include "IsoGrid.hpp"
-#include "Level.hpp"
 #include "MainMenu.hpp"
-#include "objects/Player.hpp"
-#include "objects/Rock.hpp"
-#include "objects/Tree.hpp"
 #include "sdl/Context.hpp"
 #include "sdl/FpsCounter.hpp"
 #include "sdl/Renderer.hpp"
@@ -51,9 +47,6 @@ private:
     // UI
     MainMenu menu_;
     sdl::FpsCounter fps_counter_;
-
-    // Level
-    std::unique_ptr<Level> level_;
 
     // Playground
     IsoGrid iso_grid_;

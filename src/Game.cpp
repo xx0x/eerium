@@ -46,10 +46,6 @@ void Game::HandleEvents()
                 {
                     current_state_ = State::MENU;
                 }
-                if (level_ != nullptr)
-                {
-                    level_->HandleEvent(e);
-                }
                 break;
             case State::PLAYING:
                 if (e.type == SDL_EVENT_KEY_DOWN && e.key.key == SDLK_ESCAPE)
@@ -101,10 +97,6 @@ void Game::Update()
             iso_grid_.Update();
             break;
         case State::HELP:
-            if (level_ != nullptr)
-            {
-                level_->Update();
-            }
             break;
         case State::QUIT:
             break;
@@ -113,7 +105,7 @@ void Game::Update()
 
 void Game::StartGame()
 {
-    level_ = std::make_unique<Level>();
+    iso_grid_.Reset();
 }
 
 void Game::Render()
@@ -124,10 +116,7 @@ void Game::Render()
             menu_.Render(renderer_);
             break;
         case State::HELP:
-            if (level_ != nullptr)
-            {
-                level_->Render(renderer_);
-            }
+            renderer_.Clear();
             break;
         case State::PLAYING:
             iso_grid_.Render(renderer_);
