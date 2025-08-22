@@ -11,6 +11,8 @@ Game::Game() : context_(SDL_INIT_VIDEO),
                renderer_(window_.Get(), nullptr)
 {
     current_state_ = State::MENU;
+    last_update_time_ = SDL_GetPerformanceCounter();
+    last_render_time_ = last_update_time_;
     std::println("Game initialized successfully");
 }
 
@@ -18,9 +20,36 @@ void Game::Run()
 {
     while (current_state_ != State::QUIT)
     {
+        Uint64 current_time = SDL_GetPerformanceCounter();
+        Uint64 frequency = SDL_GetPerformanceFrequency();
+        
+        // Calculate delta time since last frame
+        double delta_time = static_cast<double>(current_time - last_update_time_) / frequency;
+        last_update_time_ = current_time;
+        
+        // Add delta time to accumulator
+        update_accumulator_ += delta_time;
+        
+        // Always handle events
         HandleEvents();
-        Update();
-        Render();
+        
+        // Fixed timestep updates - run multiple updates if we've fallen behind
+        while (update_accumulator_ >= kUpdateIntervalSeconds)
+        {
+            Update();
+            update_accumulator_ -= kUpdateIntervalSeconds;
+        }
+        
+        // Frame-limited rendering
+        double time_since_last_render = static_cast<double>(current_time - last_render_time_) / frequency;
+        if (time_since_last_render >= kRenderIntervalSeconds)
+        {
+            Render();
+            last_render_time_ = current_time;
+        }
+        
+        // Small sleep to prevent busy waiting and reduce CPU usage
+        SDL_Delay(1);
     }
 }
 
@@ -66,8 +95,6 @@ void Game::HandleEvents()
 
 void Game::Update()
 {
-    // Update FPS counter
-    fps_counter_.Update();
 
     switch (current_state_)
     {
@@ -98,6 +125,7 @@ void Game::Update()
         }
         break;
         case State::PLAYING:
+            // Update with fixed timestep delta time
             iso_grid_.Update();
             break;
         case State::HELP:

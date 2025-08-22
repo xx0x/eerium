@@ -97,12 +97,10 @@ public:
         void Update()
         {
             // Smooth movement towards target position
-            static constexpr float kMovementSpeed = 5.0f;  // units per second
+            static constexpr float kMovementSpeed = 20.0f;  // units per second
             static constexpr float kMinDistance = 0.01f;   // stop when very close
-            // Move towards target (300 = fps)
-            // TODO: Replace with actual delta time for frame rate independence
-            static constexpr float kFrameTime = 1.0f / 300.0f;
-            static constexpr float kMoveDistance = kMovementSpeed * kFrameTime;
+            static constexpr float kUpdateTime = 1.0f / 100.0f;
+            static constexpr float kMoveDistance = kMovementSpeed * kUpdateTime;
 
             float dx = target_position_.x - position_.x;
             float dy = target_position_.y - position_.y;
@@ -126,37 +124,6 @@ public:
                 }
             }
         }
-
-        /*
-        // Alternative update method that accepts delta time for frame rate independence
-        void Update(float deltaTime)
-        {
-            constexpr float kMovementSpeed = 5.0f; // units per second
-            constexpr float kMinDistance = 0.01f;  // stop when very close
-
-            float dx = target_position_.x - position_.x;
-            float dy = target_position_.y - position_.y;
-
-            float distance = std::sqrt(dx * dx + dy * dy);
-
-            if (distance > kMinDistance)
-            {
-                float normalized_dx = dx / distance;
-                float normalized_dy = dy / distance;
-
-                float moveDistance = kMovementSpeed * deltaTime;
-
-                if (moveDistance > distance)
-                {
-                    position_ = target_position_;
-                }
-                else
-                {
-                    position_.x += normalized_dx * moveDistance;
-                    position_.y += normalized_dy * moveDistance;
-                }
-            }
-        }*/
 
         void MoveBy(float dx, float dy)
         {

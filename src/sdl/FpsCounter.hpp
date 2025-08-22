@@ -14,12 +14,6 @@ public:
     FpsCounter();
 
     /**
-     * @brief Update the FPS counter with a new frame
-     * Should be called once per frame
-     */
-    void Update();
-
-    /**
      * @brief Get the current FPS
      * @return Current FPS as a float
      */

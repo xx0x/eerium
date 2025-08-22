@@ -16,30 +16,6 @@ FpsCounter::FpsCounter()
 {
 }
 
-void FpsCounter::Update()
-{
-    auto now = std::chrono::high_resolution_clock::now();
-
-    // Add current frame time
-    frame_times_.push_back(now);
-
-    // Remove old frame times (older than 1 second)
-    auto cutoff_time = now - std::chrono::seconds(1);
-    while (!frame_times_.empty() && frame_times_.front() < cutoff_time)
-    {
-        frame_times_.pop_front();
-    }
-
-    // Limit the frame history size
-    if (frame_times_.size() > kMaxFrameHistory)
-    {
-        frame_times_.pop_front();
-    }
-
-    // Mark FPS as dirty for recalculation
-    fps_dirty_ = true;
-}
-
 float FpsCounter::GetFps() const
 {
     if (fps_dirty_ && frame_times_.size() >= 2)
@@ -70,6 +46,27 @@ float FpsCounter::GetFps() const
 
 void FpsCounter::Render(sdl::Renderer& renderer)
 {
+    auto now = std::chrono::high_resolution_clock::now();
+
+    // Add current frame time
+    frame_times_.push_back(now);
+
+    // Remove old frame times (older than 1 second)
+    auto cutoff_time = now - std::chrono::seconds(1);
+    while (!frame_times_.empty() && frame_times_.front() < cutoff_time)
+    {
+        frame_times_.pop_front();
+    }
+
+    // Limit the frame history size
+    if (frame_times_.size() > kMaxFrameHistory)
+    {
+        frame_times_.pop_front();
+    }
+
+    // Mark FPS as dirty for recalculation
+    fps_dirty_ = true;
+
     // Get the default font from resource manager
     if (!font_.has_value())
     {

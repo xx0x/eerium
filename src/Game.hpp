@@ -51,7 +51,16 @@ private:
     // Playground
     IsoGrid iso_grid_;
 
+    // Timing constants
     static constexpr char kGameTitle[] = "Eerium";
+    static constexpr double kUpdateIntervalSeconds = 1.0 / 50.0;  // 50 updates per second (20ms)
+    static constexpr double kTargetRenderFps = 120.0;
+    static constexpr double kRenderIntervalSeconds = 1.0 / kTargetRenderFps;
+    
+    // Timing variables
+    Uint64 last_update_time_ = 0;
+    Uint64 last_render_time_ = 0;
+    double update_accumulator_ = 0.0;
 };
 
 }  // namespace eerium
