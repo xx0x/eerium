@@ -3,8 +3,12 @@
 #include <print>
 using namespace eerium;
 
-Game::Game()
-    : context_(SDL_INIT_VIDEO), window_(kGameTitle, 800, 600, 0), renderer_(window_.Get(), nullptr)
+//  | SDL_WINDOW_HIGH_PIXEL_DENSITY
+// SDL_WINDOW_FULLSCREEN
+
+Game::Game() : context_(SDL_INIT_VIDEO),
+               window_(kGameTitle, 800, 600, SDL_WINDOW_RESIZABLE),
+               renderer_(window_.Get(), nullptr)
 {
     current_state_ = State::MENU;
     std::println("Game initialized successfully");
