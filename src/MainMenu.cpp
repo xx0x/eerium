@@ -58,8 +58,9 @@ void MainMenu::Render(sdl::Renderer& renderer)
     // Render title
     renderer.RenderText("EERIUM", window.width / 2, 100, sdl::kColorRed, *title_font_, sdl::Renderer::TextAlign::CENTER);
 
-    // New Main Menu options
-    new_options_.SetPosition(window.width / 2, window.height / 2);
+    // Center the container in the window
+    new_options_.CenterInArea(window.width, window.height);
+    new_options_.SetAutoCenter(true, false); // Center elements horizontally within container
     new_options_.Render(renderer);
 
     // Instructions

@@ -87,6 +87,44 @@ public:
         spacing_ = spacing;
     }
     
+    void SetAutoCenter(bool horizontal, bool vertical) noexcept {
+        auto_center_horizontal_ = horizontal;
+        auto_center_vertical_ = vertical;
+    }
+    
+    [[nodiscard]] float GetTotalWidth() const noexcept {
+        if (elements_.empty()) return 0.0f;
+        
+        float max_width = 0.0f;
+        for (const auto& element : elements_) {
+            max_width = std::max(max_width, element->GetWidth());
+        }
+        return max_width;
+    }
+    
+    [[nodiscard]] float GetTotalHeight() const noexcept {
+        if (elements_.empty()) return 0.0f;
+        
+        float total_height = 0.0f;
+        for (size_t i = 0; i < elements_.size(); ++i) {
+            total_height += elements_[i]->GetHeight();
+            if (i < elements_.size() - 1) {
+                total_height += spacing_;
+            }
+        }
+        return total_height;
+    }
+    
+    void CenterInArea(float area_width, float area_height) {
+        float container_width = GetTotalWidth();
+        float container_height = GetTotalHeight();
+        
+        float center_x = (area_width - container_width) / 2.0f;
+        float center_y = (area_height - container_height) / 2.0f;
+        
+        SetPosition(center_x, center_y);
+    }
+    
     // Navigation control
     void SelectNext() { Navigate(NavigationDirection::Down); }
     void SelectPrevious() { Navigate(NavigationDirection::Up); }
@@ -109,14 +147,34 @@ private:
     } position_;
     
     float spacing_ = 5.0f;
+    bool auto_center_horizontal_ = false;
+    bool auto_center_vertical_ = false;
     std::vector<std::unique_ptr<BaseElement>> elements_;
     std::optional<size_t> selected_index_;
     std::optional<size_t> hovered_index_;
     
     void UpdateLayout() {
+        if (elements_.empty()) return;
+        
+        // Calculate the starting Y position
         float current_y = position_.y;
+        
+        // If auto-centering vertically, adjust the starting position
+        if (auto_center_vertical_) {
+            // This would need window height passed in, for now use a default approach
+            // The centering will be handled by CenterInArea method instead
+        }
+        
         for (const auto& element : elements_) {
-            element->SetPosition(position_.x, current_y);
+            float element_x = position_.x;
+            
+            // If auto-centering horizontally, center each element individually
+            if (auto_center_horizontal_) {
+                float container_width = GetTotalWidth();
+                element_x = position_.x + (container_width - element->GetWidth()) / 2.0f;
+            }
+            
+            element->SetPosition(element_x, current_y);
             current_y += element->GetHeight() + spacing_;
         }
     }
