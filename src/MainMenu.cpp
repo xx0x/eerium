@@ -15,17 +15,17 @@ MainMenu::MainMenu()
         std::println(stderr, "Failed to get the fonts");
     }
 
-    new_options_.AddItem(std::make_unique<ui::ClickableText>("New Game", [this]()
+    new_options_.AddElement(std::make_unique<ui::ClickableText>("New Game", [this]()
                                                              {
         selected_option_ = 0;
         action_selected_ = true; }));
 
-    new_options_.AddItem(std::make_unique<ui::ClickableText>("Help", [this]()
+    new_options_.AddElement(std::make_unique<ui::ClickableText>("Help", [this]()
                                                              {
         selected_option_ = 1;
         action_selected_ = true; }));
 
-    new_options_.AddItem(std::make_unique<ui::ClickableText>("Exit", [this]()
+    new_options_.AddElement(std::make_unique<ui::ClickableText>("Exit", [this]()
                                                              {
         selected_option_ = 2;
         action_selected_ = true; }));

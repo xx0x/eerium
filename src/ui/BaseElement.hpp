@@ -1,93 +1,115 @@
 #pragma once
 
 #include <functional>
+#include <memory>
 
 #include "sdl/Renderer.hpp"
 
 namespace eerium::ui
 {
 
+// Forward declaration
+class Container;
+
+// Modern event system using std::function with better type safety
+using ClickHandler = std::function<void()>;
+using HoverHandler = std::function<void(bool hovered)>;
+using FocusHandler = std::function<void(bool focused)>;
+
+struct ElementState {
+    bool hovered = false;
+    bool focused = false;
+    bool pressed = false;
+    bool enabled = true;
+};
+
 class BaseElement
 {
-protected:
-    typedef std::function<void()> ClickCallback;
-    typedef std::function<void(bool)> HoverCallback;
-
 public:
     virtual ~BaseElement() = default;
+    
+    // Pure virtual methods that must be implemented
     virtual void Render(sdl::Renderer& renderer) = 0;
-    void SetPosition(float x, float y)
-    {
-        position_x_ = x;
-        position_y_ = y;
+    virtual void OnStateChanged(const ElementState& old_state, const ElementState& new_state) {}
+    
+    // Modern positioning with better encapsulation
+    void SetPosition(float x, float y) noexcept { 
+        position_.x = x; 
+        position_.y = y; 
     }
-
-    void SetClickCallback(ClickCallback callback)
-    {
-        on_click_ = callback;
+    
+    void SetSize(float width, float height) noexcept { 
+        size_.width = width; 
+        size_.height = height; 
     }
-
-    void SetHoverCallback(HoverCallback callback)
-    {
-        on_hover_ = callback;
+    
+    // Getters with proper const-correctness
+    [[nodiscard]] constexpr float GetX() const noexcept { return position_.x; }
+    [[nodiscard]] constexpr float GetY() const noexcept { return position_.y; }
+    [[nodiscard]] constexpr float GetWidth() const noexcept { return size_.width; }
+    [[nodiscard]] constexpr float GetHeight() const noexcept { return size_.height; }
+    
+    [[nodiscard]] bool IsPointInside(float x, float y) const noexcept {
+        return (x >= position_.x && x <= position_.x + size_.width &&
+                y >= position_.y && y <= position_.y + size_.height);
     }
-
-    void HandleEvent(const SDL_Event& event)
-    {
-        if (event.type == SDL_EVENT_MOUSE_MOTION)
-        {
-            bool prev_hovered = is_hovered_;
-            // Check if the mouse is over the element
-            is_hovered_ = (event.motion.x >= position_x_ && event.motion.x <= position_x_ + width_ &&
-                           event.motion.y >= position_y_ && event.motion.y <= position_y_ + height_);
-            if (prev_hovered != is_hovered_ && on_hover_)
-            {
-                on_hover_(is_hovered_);
+    
+    // Modern event handlers with move semantics
+    void SetClickHandler(ClickHandler&& handler) { click_handler_ = std::move(handler); }
+    void SetHoverHandler(HoverHandler&& handler) { hover_handler_ = std::move(handler); }
+    void SetFocusHandler(FocusHandler&& handler) { focus_handler_ = std::move(handler); }
+    
+    // State management - only Container should call these
+    void SetState(const ElementState& new_state) {
+        if (state_.hovered != new_state.hovered || 
+            state_.focused != new_state.focused ||
+            state_.pressed != new_state.pressed ||
+            state_.enabled != new_state.enabled) {
+            
+            ElementState old_state = state_;
+            state_ = new_state;
+            
+            // Notify derived classes
+            OnStateChanged(old_state, state_);
+            
+            // Call handlers
+            if (old_state.hovered != state_.hovered && hover_handler_) {
+                hover_handler_(state_.hovered);
+            }
+            if (old_state.focused != state_.focused && focus_handler_) {
+                focus_handler_(state_.focused);
             }
         }
-        else if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN && is_hovered_)
-        {
-            // Call the click callback if the element is clicked
-            if (on_click_)
-            {
-                on_click_();
-            }
+    }
+    
+    [[nodiscard]] const ElementState& GetState() const noexcept { return state_; }
+    
+    // Trigger actions
+    void TriggerClick() {
+        if (state_.enabled && click_handler_) {
+            click_handler_();
         }
     }
 
-    void TriggerOnClick()
-    {
-        if (on_click_)
-        {
-            on_click_();
-        }
-    }
-
-    void TriggerOnHover(bool hovered)
-    {
-        is_hovered_ = hovered;
-    }
-
-    float GetWidth() const
-    {
-        return width_;
-    }
-
-    float GetHeight() const
-    {
-        return height_;
-    }
-
-protected:
-    float position_x_ = 0.0f;
-    float position_y_ = 0.0f;
-    float width_ = 0.0f;
-    float height_ = 0.0f;
-
-    ClickCallback on_click_ = nullptr;
-    HoverCallback on_hover_ = nullptr;
-
-    bool is_hovered_ = false;
+private:
+    struct Position {
+        float x = 0.0f;
+        float y = 0.0f;
+    } position_;
+    
+    struct Size {
+        float width = 0.0f;
+        float height = 0.0f;
+    } size_;
+    
+    ElementState state_;
+    
+    ClickHandler click_handler_;
+    HoverHandler hover_handler_;
+    FocusHandler focus_handler_;
+    
+    // Only Container can manage element states
+    friend class Container;
 };
 
 }  // namespace eerium::ui
