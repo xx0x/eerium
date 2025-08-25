@@ -14,6 +14,21 @@ MainMenu::MainMenu()
     {
         std::println(stderr, "Failed to get the fonts");
     }
+
+    new_options_.AddItem(std::make_unique<ui::ClickableText>("New Game", [this]()
+                                                             {
+        selected_option_ = 0;
+        action_selected_ = true; }));
+
+    new_options_.AddItem(std::make_unique<ui::ClickableText>("Help", [this]()
+                                                             {
+        selected_option_ = 1;
+        action_selected_ = true; }));
+
+    new_options_.AddItem(std::make_unique<ui::ClickableText>("Exit", [this]()
+                                                             {
+        selected_option_ = 2;
+        action_selected_ = true; }));
 }
 
 void MainMenu::Reset()
@@ -24,22 +39,7 @@ void MainMenu::Reset()
 
 void MainMenu::HandleEvent(const SDL_Event& event)
 {
-    if (event.type == SDL_EVENT_KEY_DOWN)
-    {
-        switch (event.key.key)
-        {
-            case SDLK_UP:
-                selected_option_ = (selected_option_ - 1 + options_.size()) % options_.size();
-                break;
-            case SDLK_DOWN:
-                selected_option_ = (selected_option_ + 1) % options_.size();
-                break;
-            case SDLK_RETURN:
-            case SDLK_SPACE:
-                action_selected_ = true;
-                break;
-        }
-    }
+    new_options_.HandleEvent(event);
 }
 
 void MainMenu::Render(sdl::Renderer& renderer)
@@ -58,28 +58,9 @@ void MainMenu::Render(sdl::Renderer& renderer)
     // Render title
     renderer.RenderText("EERIUM", window.width / 2, 100, sdl::kColorRed, *title_font_, sdl::Renderer::TextAlign::CENTER);
 
-    // MainMenu options
-    float option_y = 200;
-    for (size_t i = 0; i < options_.size(); ++i)
-    {
-        sdl::Color text_color;
-
-        // Highlight selected option
-        if (i == selected_option_)
-        {
-            text_color = sdl::kColorYellow;
-        }
-        else
-        {
-            text_color = sdl::kColorLightGrey;
-        }
-
-        // Center the text horizontally
-        float text_x = window.width / 2;
-        float text_y = option_y + i * 60;
-
-        renderer.RenderText(options_[i].label, text_x, text_y, text_color, *menu_font_, sdl::Renderer::TextAlign::CENTER);
-    }
+    // New Main Menu options
+    new_options_.SetPosition(window.width / 2, window.height / 2);
+    new_options_.Render(renderer);
 
     // Instructions
     renderer.RenderText("Use arrow keys to navigate, Enter to select",

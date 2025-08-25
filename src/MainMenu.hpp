@@ -10,6 +10,9 @@
 #include "sdl/Font.hpp"
 #include "sdl/Renderer.hpp"
 
+#include "ui/Container.hpp"
+#include "ui/ClickableText.hpp"
+
 namespace eerium
 {
 
@@ -33,6 +36,9 @@ private:
         Item{.name = "start", .label = "Start Game"},
         Item{.name = "help", .label = "Help"},
         Item{.name = "quit", .label = "Quit"}};
+
+
+    ui::Container new_options_;
 
     int selected_option_ = 0;
     bool action_selected_ = false;
